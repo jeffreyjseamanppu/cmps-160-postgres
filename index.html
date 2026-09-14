@@ -824,6 +824,175 @@ CREATE TABLE enrollment (
         REFERENCES course(course_id)
 );</code></pre>
 
+<!--section for adding an environment with live data locally-->
+<h3>Part 1 - Build Your PostgreSQL Lab Environment</h3>
+
+<p>
+    Before beginning the database design exercises, you will build a working
+    PostgreSQL environment using the SQL scripts provided in the Module 2
+    course repository.
+</p>
+
+<div class="important">
+    <strong>Module 2 PostgreSQL Files:</strong>
+
+    <p>
+        Download the SQL files from the Module 2/PostGres folder in the
+        course GitHub repository.
+    </p>
+
+    <p>
+        <a href="https://github.com/jeffreyjseamanppu/cmps160/tree/master/Module2/PostGres"
+           target="_blank">
+           Open Module 2 PostgreSQL Files
+        </a>
+    </p>
+</div>
+
+<h3>Step 1 - Start PostgreSQL</h3>
+
+<p>
+    Make sure PostgreSQL is installed and running on your computer.
+    Open pgAdmin or your preferred PostgreSQL management tool.
+</p>
+
+<p>
+    Confirm that you can connect to your PostgreSQL server before continuing.
+</p>
+
+<h3>Step 2 - Create a Practice Database</h3>
+
+<p>
+    Create a new PostgreSQL database for the Module 2 lab.
+</p>
+
+<p>Use the following database name:</p>
+
+<pre><code>cmps160_module2</code></pre>
+
+<p>
+    You may create the database through pgAdmin or by running:
+</p>
+
+<pre><code>CREATE DATABASE cmps160_module2;</code></pre>
+
+<h3>Step 3 - Open the Query Tool</h3>
+
+<p>
+    Select the <code>cmps160_module2</code> database and open the
+    PostgreSQL Query Tool.
+</p>
+
+<p>
+    Each SQL file listed below should be opened and executed against
+    this database.
+</p>
+
+<h3>Step 4 - Execute the SQL Scripts</h3>
+
+<p>
+    Execute the scripts in the order shown below.
+</p>
+
+<table>
+    <tr>
+        <th>Order</th>
+        <th>SQL File</th>
+        <th>Purpose</th>
+        <th>Completed</th>
+    </tr>
+
+    <tr>
+        <td>1</td>
+        <td>FILE1.sql</td>
+        <td>Create the initial database objects.</td>
+        <td>☐</td>
+    </tr>
+
+    <tr>
+        <td>2</td>
+        <td>FILE2.sql</td>
+        <td>Create or populate additional database objects.</td>
+        <td>☐</td>
+    </tr>
+
+    <tr>
+        <td>3</td>
+        <td>FILE3.sql</td>
+        <td>Load additional sample data.</td>
+        <td>☐</td>
+    </tr>
+</table>
+
+<div class="warning">
+    <strong>Important:</strong>
+
+    <p>
+        Run the files in the order provided. Some scripts may depend on
+        tables or other database objects created by an earlier script.
+    </p>
+</div>
+
+<h3>Step 5 - Verify Your Environment</h3>
+
+<p>
+    After all SQL scripts have completed successfully, verify that the
+    database objects were created.
+</p>
+
+<p>Run:</p>
+
+<pre><code>SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+ORDER BY table_name;</code></pre>
+
+<p>
+    You should see the tables created by the Module 2 SQL scripts.
+</p>
+
+<h3>Step 6 - Inspect the Tables</h3>
+
+<p>
+    Select several of the tables and examine their data.
+</p>
+
+<p>For example:</p>
+
+<pre><code>SELECT *
+FROM table_name;</code></pre>
+
+<p>
+    Replace <code>table_name</code> with the name of one of the tables
+    created by the scripts.
+</p>
+
+<h3>Step 7 - Identify the Database Design</h3>
+
+<p>
+    Using the database you just created, identify:
+</p>
+
+<ul>
+    <li>The tables/entities</li>
+    <li>The primary key of each table</li>
+    <li>The foreign keys</li>
+    <li>One-to-many relationships</li>
+    <li>Any many-to-many relationships</li>
+</ul>
+
+<h3>Lab Submission Evidence</h3>
+
+<p>
+    Include screenshots showing:
+</p>
+
+<ul>
+    <li>Your PostgreSQL server connection</li>
+    <li>The <code>cmps160_module2</code> database</li>
+    <li>The list of successfully created tables</li>
+    <li>At least one successful <code>SELECT</code> query</li>
+</ul>
     <div class="important">
         <strong>Remember:</strong>
         <p>
