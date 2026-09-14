@@ -1,2 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-Test
+    <title>CMPS 160 - Module 2</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fa;
+            color: #222;
+            line-height: 1.6;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        header p {
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
+
+        nav {
+            background: #111827;
+            padding: 12px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav a {
+            color: white;
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: auto;
+            padding: 30px 20px;
+        }
+
+        section {
+            background: white;
+            margin-bottom: 30px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 10px;
+            color: #1f2937;
+        }
+
+        h3 {
+            color: #2563eb;
+        }
+
+        .objective {
+            background: #eff6ff;
+            border-left: 5px solid #2563eb;
+            padding: 20px;
+        }
+
+        .discussion {
+            background: #fff7ed;
+            border-left: 5px solid #f97316;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .important {
+            background: #ecfdf5;
+            border-left: 5px solid #10b981;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .warning {
+            background: #fef2f2;
+            border-left: 5px solid #ef4444;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        code {
+            font-family: Consolas, Monaco, monospace;
+        }
+
+        pre {
+            background: #111827;
+            color: #e5e7eb;
+            padding: 20px;
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #d1d5db;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #e5e7eb;
+        }
+
+        .diagram {
+            background: #f9fafb;
+            border: 1px solid #d1d5db;
+            padding: 20px;
+            font-family: Consolas, monospace;
+            white-space: pre-wrap;
+            border-radius: 8px;
+        }
+
+        .lab-step {
+            border-left: 4px solid #7c3aed;
+            padding-left: 20px;
+            margin: 25px 0;
+        }
+
+        footer {
+            background: #1f2937;
+            color: white;
+            text-align: center;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .top-link {
+            display: inline-block;
+            margin-top: 15px;
+            text-decoration: none;
+            color: #2563eb;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-right: 5px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+
+<header id="top">
+    <h1>CMPS 160 - PostgreSQL</h1>
+    <p>Module 2: Relational Database Design & Data Modeling</p>
+</header>
+
+<nav>
+    <a href="#objectives">Objectives</a>
+    <a href="#why-design">Why Design Matters</a>
+    <a href="#entities">Entities</a>
+    <a href="#keys">Keys</a>
+    <a href="#relationships">Relationships</a>
+    <a href="#erd">ERDs</a>
+    <a href="#exercise">Exercise</a>
+    <a href="#lab">Lab</a>
+</nav>
+
+<main>
+
+<section id="objectives">
+    <h2>Module Objectives</h2>
+
+    <div class="objective">
+        <p>Upon successful completion of this module, students should be able to:</p>
+
+        <ul>
+            <li>Explain how relational databases organize information.</li>
+            <li>Identify entities and attributes from business requirements.</li>
+            <li>Explain the purpose of primary keys and foreign keys.</li>
+            <li>Identify one-to-one, one-to-many, and many-to-many relationships.</li>
+            <li>Create a basic Entity Relationship Diagram (ERD).</li>
+            <li>Translate real-world requirements into a relational database design.</li>
+        </ul>
+    </div>
+</section>
+
+<section id="why-design">
+    <h2>Why Database Design Matters</h2>
+
+    <p>
+        Before we create tables in PostgreSQL, we need to understand what information
+        should be stored and how that information relates to other data.
+    </p>
+
+    <h3>A Poorly Designed Spreadsheet</h3>
+
+    <table>
+        <tr>
+            <th>Player</th>
+            <th>Team</th>
+            <th>Team City</th>
+            <th>Coach</th>
+            <th>Position</th>
+            <th>Stadium</th>
+        </tr>
+        <tr>
+            <td>T.J. Watt</td>
+            <td>Steelers</td>
+            <td>Pittsburgh</td>
+            <td>Mike Tomlin</td>
+            <td>LB</td>
+            <td>Acrisure Stadium</td>
+        </tr>
+        <tr>
+            <td>Aaron Rodgers</td>
+            <td>Steelers</td>
+            <td>Pittsburgh</td>
+            <td>Mike Tomlin</td>
+            <td>QB</td>
+            <td>Acrisure Stadium</td>
+        </tr>
+        <tr>
+            <td>DK Metcalf</td>
+            <td>Steelers</td>
+            <td>Pittsburgh</td>
+            <td>Mike Tomlin</td>
+            <td>WR</td>
+            <td>Acrisure Stadium</td>
+        </tr>
+    </table>
+
+    <div class="discussion">
+        <strong>Class Discussion:</strong>
+        <p>What information is being repeated?</p>
+        <p>What happens if the team changes coaches?</p>
+        <p>How many rows would need to be updated?</p>
+    </div>
+
+    <div class="important">
+        <strong>Key Idea:</strong>
+        <p>
+            A relational database separates information into logical tables and
+            connects those tables through relationships.
+        </p>
+    </div>
+</section>
+
+<section id="entities">
+    <h2>Entities and Attributes</h2>
+
+    <h3>What is an Entity?</h3>
+
+    <p>
+        An entity is a person, place, object, event, or concept that we need to store information about.
+    </p>
+
+    <p>Examples in a sports database:</p>
+
+    <div class="diagram">
+TEAM
+PLAYER
+COACH
+GAME
+STADIUM
+    </div>
+
+    <h3>What is an Attribute?</h3>
+
+    <p>
+        An attribute is a characteristic or property of an entity.
+    </p>
+
+    <div class="diagram">
+TEAM
+------------------
+team_id
+team_name
+city
+state
+    </div>
+
+    <div class="diagram">
+PLAYER
+------------------
+player_id
+first_name
+last_name
+position
+jersey_number
+    </div>
+
+    <div class="discussion">
+        <strong>Think About It:</strong>
+        <p>
+            If you were building a database for a winery, what entities would you need?
+        </p>
+    </div>
+
+    <p>Possible entities:</p>
+
+    <div class="diagram">
+CUSTOMER
+WINE
+ORDER
+CATEGORY
+    </div>
+
+    <p>A WINE entity might contain:</p>
+
+    <div class="diagram">
+WINE
+------------------
+wine_id
+wine_name
+wine_type
+vintage
+price
+    </div>
+</section>
+
+<section id="keys">
+    <h2>Primary Keys and Foreign Keys</h2>
+
+    <h3>Primary Key</h3>
+
+    <p>
+        A primary key uniquely identifies each record in a table.
+    </p>
+
+    <div class="warning">
+        <strong>Bad Primary Key:</strong>
+
+        <pre>player_name</pre>
+
+        <p>
+            Two players may have the same name.
+        </p>
+    </div>
+
+    <div class="important">
+        <strong>Better Design:</strong>
+
+        <pre>player_id</pre>
+    </div>
+
+    <div class="diagram">
+PLAYER
+------------------
+player_id      PK
+first_name
+last_name
+position
+    </div>
+
+    <p>Primary keys should:</p>
+
+    <ul>
+        <li>Be unique.</li>
+        <li>Never be NULL.</li>
+        <li>Identify exactly one row.</li>
+    </ul>
+
+    <h3>Foreign Key</h3>
+
+    <p>
+        A foreign key connects one table to another table.
+    </p>
+
+    <div class="diagram">
+TEAM
+------------------
+team_id        PK
+team_name
+city
+
+
+PLAYER
+------------------
+player_id      PK
+first_name
+last_name
+position
+team_id        FK
+    </div>
+
+    <p>
+        The foreign key <code>team_id</code> tells us which team each player belongs to.
+    </p>
+
+    <table>
+        <tr>
+            <th>team_id</th>
+            <th>team_name</th>
+            <th>city</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>Steelers</td>
+            <td>Pittsburgh</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Eagles</td>
+            <td>Philadelphia</td>
+        </tr>
+    </table>
+
+    <table>
+        <tr>
+            <th>player_id</th>
+            <th>first_name</th>
+            <th>last_name</th>
+            <th>team_id</th>
+        </tr>
+        <tr>
+            <td>101</td>
+            <td>T.J.</td>
+            <td>Watt</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>102</td>
+            <td>Aaron</td>
+            <td>Rodgers</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>103</td>
+            <td>Jalen</td>
+            <td>Hurts</td>
+            <td>2</td>
+        </tr>
+    </table>
+</section>
+
+<section id="relationships">
+    <h2>Table Relationships</h2>
+
+    <h3>One-to-One</h3>
+
+    <div class="diagram">
+EMPLOYEE  1 -------- 1  EMPLOYEE_BADGE
+    </div>
+
+    <p>
+        One employee has one employee badge.
+    </p>
+
+    <h3>One-to-Many</h3>
+
+    <div class="diagram">
+TEAM  1 -------- *  PLAYER
+    </div>
+
+    <p>
+        One team can have many players.
+    </p>
+
+    <p>
+        One player belongs to one team.
+    </p>
+
+    <div class="important">
+        <strong>Rule:</strong>
+        <p>
+            In a one-to-many relationship, the foreign key normally goes on the
+            <strong>many side</strong>.
+        </p>
+    </div>
+
+    <h3>Many-to-Many</h3>
+
+    <div class="diagram">
+STUDENT  * -------- *  COURSE
+    </div>
+
+    <p>
+        A student can take many courses.
+    </p>
+
+    <p>
+        A course can contain many students.
+    </p>
+
+    <p>
+        A direct many-to-many relationship must normally be resolved using another table.
+    </p>
+
+    <div class="diagram">
+STUDENT
+   |
+   | 1
+   |
+   *
+ENROLLMENT
+   *
+   |
+   | 1
+   |
+COURSE
+    </div>
+
+    <div class="diagram">
+ENROLLMENT
+------------------
+student_id       FK
+course_id        FK
+semester
+grade
+    </div>
+
+    <p>
+        The ENROLLMENT table is often called a:
+    </p>
+
+    <ul>
+        <li>Junction table</li>
+        <li>Bridge table</li>
+        <li>Associative entity</li>
+    </ul>
+</section>
+
+<section id="erd">
+    <h2>Entity Relationship Diagrams</h2>
+
+    <p>
+        An Entity Relationship Diagram, or ERD, is a visual blueprint of a database.
+    </p>
+
+    <div class="diagram">
+TEAM
+------------------
+PK team_id
+   team_name
+   city
+
+       1
+       |
+       |
+       *
+
+PLAYER
+------------------
+PK player_id
+   first_name
+   last_name
+   position
+FK team_id
+    </div>
+
+    <p>
+        ERDs help us design the database before creating tables in PostgreSQL.
+    </p>
+
+    <div class="important">
+        <strong>Key Question:</strong>
+        <p>
+            What are the entities, and how are they related?
+        </p>
+    </div>
+</section>
+
+<section id="exercise">
+    <h2>Instructor-Led Design Exercise</h2>
+
+    <h3>Winery Database</h3>
+
+    <p>
+        A winery sells multiple wines. Each wine belongs to a wine category.
+        Customers can place orders. Each order can contain multiple wines, and each wine
+        may appear on many different orders.
+    </p>
+
+    <div class="discussion">
+        <strong>Class Question:</strong>
+        <p>What entities do we need?</p>
+    </div>
+
+    <p>Possible entities:</p>
+
+    <div class="diagram">
+CUSTOMER
+WINE
+CATEGORY
+ORDER
+ORDER_ITEM
+    </div>
+
+    <h3>Relationships</h3>
+
+    <div class="diagram">
+CATEGORY
+   1
+   |
+   *
+ WINE
+
+
+CUSTOMER
+   1
+   |
+   *
+ ORDER
+
+
+ORDER
+   1
+   |
+   *
+ORDER_ITEM
+   *
+   |
+   1
+ WINE
+    </div>
+
+    <h3>ORDER_ITEM Table</h3>
+
+    <div class="diagram">
+ORDER_ITEM
+------------------
+order_item_id     PK
+order_id          FK
+wine_id           FK
+quantity
+price
+    </div>
+
+    <div class="discussion">
+        <strong>Question:</strong>
+        <p>
+            Why can't we simply place <code>wine_id</code> inside the ORDER table?
+        </p>
+    </div>
+
+    <p>
+        Because one order can contain multiple wines.
+    </p>
+
+    <div class="discussion">
+        <strong>Question:</strong>
+        <p>
+            Why can't we place <code>order_id</code> inside the WINE table?
+        </p>
+    </div>
+
+    <p>
+        Because the same wine may appear on thousands of different orders.
+    </p>
+</section>
+
+<section id="lab">
+    <h2>Module 2 Lab</h2>
+
+    <h3>Point Park University Course Registration System</h3>
+
+    <p>
+        Point Park University needs a database to track students, professors,
+        courses, and course enrollment.
+    </p>
+
+    <p>
+        Each student has an ID, first name, last name, email, and major.
+        Professors have an ID, name, email, and department.
+        A professor can teach multiple courses.
+        Students can enroll in multiple courses, and each course can contain multiple students.
+        The university also needs to record the semester and final grade for each enrollment.
+    </p>
+
+    <div class="lab-step">
+        <h3>Step 1 - Identify the Entities</h3>
+
+        <p>
+            Determine the major objects that must be stored in the database.
+        </p>
+    </div>
+
+    <div class="lab-step">
+        <h3>Step 2 - Identify Attributes</h3>
+
+        <p>
+            Define the information that should be stored for each entity.
+        </p>
+    </div>
+
+    <div class="lab-step">
+        <h3>Step 3 - Identify Primary Keys</h3>
+
+        <p>
+            Choose a unique identifier for every entity.
+        </p>
+    </div>
+
+    <div class="lab-step">
+        <h3>Step 4 - Identify Relationships</h3>
+
+        <p>
+            Determine whether the relationships are one-to-one, one-to-many,
+            or many-to-many.
+        </p>
+    </div>
+
+    <div class="lab-step">
+        <h3>Step 5 - Create an ERD</h3>
+
+        <p>
+            Draw an Entity Relationship Diagram showing the tables,
+            primary keys, foreign keys, and relationships.
+        </p>
+    </div>
+
+    <h3>Possible Solution</h3>
+
+    <div class="diagram">
+STUDENT
+------------------
+student_id       PK
+first_name
+last_name
+email
+major
+
+
+PROFESSOR
+------------------
+professor_id     PK
+first_name
+last_name
+email
+department
+
+
+COURSE
+------------------
+course_id        PK
+course_code
+course_name
+credit_hours
+professor_id     FK
+
+
+ENROLLMENT
+------------------
+enrollment_id    PK
+student_id       FK
+course_id        FK
+semester
+grade
+    </div>
+
+    <h3>Relationships</h3>
+
+    <div class="diagram">
+PROFESSOR  1 -------- * COURSE
+
+STUDENT    1 -------- * ENROLLMENT
+
+COURSE     1 -------- * ENROLLMENT
+    </div>
+
+    <h3>PostgreSQL Example</h3>
+
+    <pre><code>CREATE TABLE professor (
+    professor_id INTEGER PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    department VARCHAR(100)
+);
+
+CREATE TABLE student (
+    student_id INTEGER PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    major VARCHAR(100)
+);
+
+CREATE TABLE course (
+    course_id INTEGER PRIMARY KEY,
+    course_code VARCHAR(20),
+    course_name VARCHAR(100),
+    credit_hours INTEGER,
+    professor_id INTEGER,
+    FOREIGN KEY (professor_id)
+        REFERENCES professor(professor_id)
+);
+
+CREATE TABLE enrollment (
+    enrollment_id INTEGER PRIMARY KEY,
+    student_id INTEGER,
+    course_id INTEGER,
+    semester VARCHAR(30),
+    grade VARCHAR(5),
+    FOREIGN KEY (student_id)
+        REFERENCES student(student_id),
+    FOREIGN KEY (course_id)
+        REFERENCES course(course_id)
+);</code></pre>
+
+    <div class="important">
+        <strong>Remember:</strong>
+        <p>
+            For Module 2, the goal is understanding good database design.
+            Memorizing every SQL command is not yet the priority.
+        </p>
+    </div>
+
+    <h3>Independent Challenge</h3>
+
+    <p>
+        A medical office needs to track patients, doctors, appointments,
+        and medical offices.
+    </p>
+
+    <p>
+        A doctor can see many patients, and a patient can see many doctors.
+        Each appointment records the patient, doctor, appointment date,
+        appointment time, and reason for the visit.
+    </p>
+
+    <p>Your task:</p>
+
+    <ul>
+        <li>Identify the entities.</li>
+        <li>Identify the attributes.</li>
+        <li>Identify primary keys.</li>
+        <li>Identify foreign keys.</li>
+        <li>Determine the relationships.</li>
+        <li>Create an ERD.</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Module 2 Summary</h2>
+
+    <p>Before building a database, always ask:</p>
+
+    <ol>
+        <li>What information do I need to store?</li>
+        <li>What are my entities?</li>
+        <li>What attributes belong to each entity?</li>
+        <li>What uniquely identifies each record?</li>
+        <li>How are the entities related?</li>
+        <li>Where should foreign keys be placed?</li>
+        <li>Do I need a junction table?</li>
+    </ol>
+
+    <div class="important">
+        <strong>Main Takeaway:</strong>
+
+        <p>
+            Do not start by creating tables. Start by understanding the data
+            and how the information relates to everything else.
+        </p>
+    </div>
+
+    <a class="top-link" href="#top">Back to Top</a>
+</section>
+
+</main>
+
+<footer>
+    CMPS 160 - PostgreSQL Database Systems
+</footer>
+
+</body>
+</html>
