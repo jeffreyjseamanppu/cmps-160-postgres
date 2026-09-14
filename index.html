@@ -884,6 +884,252 @@ CREATE TABLE enrollment (
     <a class="top-link" href="#top">Back to Top</a>
 </section>
 
+<section id="homework">
+    <h2>Module 2 Homework Assignment</h2>
+
+    <h3>Relational Database Design & Data Modeling</h3>
+
+    <p>
+        In this assignment, you will design a relational database based on a
+        real-world scenario. Your goal is to identify the entities, attributes,
+        primary keys, foreign keys, and relationships before creating the database.
+    </p>
+
+    <div class="objective">
+        <strong>Assignment Objective:</strong>
+
+        <p>
+            Demonstrate your understanding of relational database design by
+            transforming business requirements into a logical database model.
+        </p>
+    </div>
+
+    <h3>Scenario: Sports League Database</h3>
+
+    <p>
+        You have been asked to design a database for a sports league.
+        The league contains multiple teams. Each team has players and a coach.
+        Teams play games against other teams at different venues.
+    </p>
+
+    <p>
+        The database should be able to store information about:
+    </p>
+
+    <ul>
+        <li>Teams</li>
+        <li>Players</li>
+        <li>Coaches</li>
+        <li>Games</li>
+        <li>Venues</li>
+    </ul>
+
+    <p>
+        Each team should have a team name, city, and state.
+        Each player should have a first name, last name, jersey number,
+        and position.
+    </p>
+
+    <p>
+        Each coach should have a first name and last name.
+        Each game should record the teams participating, the date of the game,
+        and the venue where the game is played.
+    </p>
+
+    <h3>Part 1 - Identify the Entities</h3>
+
+    <p>
+        Identify all entities that should exist in your database.
+    </p>
+
+    <p>
+        For each entity, briefly explain what the entity represents.
+    </p>
+
+    <h3>Part 2 - Define the Attributes</h3>
+
+    <p>
+        List the attributes that should be stored for each entity.
+    </p>
+
+    <p>
+        Example:
+    </p>
+
+    <div class="diagram">
+TEAM
+------------------
+team_id
+team_name
+city
+state
+    </div>
+
+    <h3>Part 3 - Identify Primary Keys</h3>
+
+    <p>
+        Identify a primary key for every table.
+    </p>
+
+    <p>
+        Clearly mark each primary key using:
+    </p>
+
+    <pre>PK</pre>
+
+    <p>Example:</p>
+
+    <div class="diagram">
+TEAM
+------------------
+team_id        PK
+team_name
+city
+state
+    </div>
+
+    <h3>Part 4 - Identify Foreign Keys</h3>
+
+    <p>
+        Determine where foreign keys are required to connect your tables.
+    </p>
+
+    <p>
+        Clearly mark foreign keys using:
+    </p>
+
+    <pre>FK</pre>
+
+    <h3>Part 5 - Identify the Relationships</h3>
+
+    <p>
+        Identify the relationships between your entities.
+    </p>
+
+    <p>
+        For each relationship, indicate whether it is:
+    </p>
+
+    <ul>
+        <li>One-to-One</li>
+        <li>One-to-Many</li>
+        <li>Many-to-Many</li>
+    </ul>
+
+    <p>
+        Example:
+    </p>
+
+    <div class="diagram">
+TEAM  1 -------- * PLAYER
+    </div>
+
+    <h3>Part 6 - Create an Entity Relationship Diagram</h3>
+
+    <p>
+        Create an Entity Relationship Diagram (ERD) showing your complete
+        database design.
+    </p>
+
+    <p>Your ERD must clearly show:</p>
+
+    <ul>
+        <li>All tables/entities</li>
+        <li>Attributes</li>
+        <li>Primary keys</li>
+        <li>Foreign keys</li>
+        <li>Relationships between tables</li>
+        <li>Relationship cardinality</li>
+    </ul>
+
+    <p>
+        You may create your ERD using a tool such as:
+    </p>
+
+    <ul>
+        <li>draw.io / diagrams.net</li>
+        <li>Lucidchart</li>
+        <li>dbdiagram.io</li>
+        <li>Microsoft Visio</li>
+        <li>Another approved ERD tool</li>
+    </ul>
+
+    <h3>Part 7 - Design Explanation</h3>
+
+    <p>
+        Write a short explanation of your database design.
+        Your explanation should be approximately 1/2 to 1 page.
+    </p>
+
+    <p>Discuss:</p>
+
+    <ul>
+        <li>Why you selected your entities.</li>
+        <li>How the tables are related.</li>
+        <li>Why you selected your primary keys.</li>
+        <li>Where foreign keys are required.</li>
+        <li>Any many-to-many relationships you identified.</li>
+    </ul>
+
+    <h3>Submission Requirements</h3>
+
+    <p>Submit the following:</p>
+
+    <ol>
+        <li>A list of your entities and attributes.</li>
+        <li>Primary keys and foreign keys clearly identified.</li>
+        <li>Your completed Entity Relationship Diagram.</li>
+        <li>Your 1/2 to 1 page database design explanation.</li>
+    </ol>
+
+    <div class="important">
+        <strong>Important:</strong>
+
+        <p>
+            You are not required to create the PostgreSQL tables for this
+            assignment unless instructed by your professor.
+        </p>
+
+        <p>
+            The focus of this assignment is database design and data modeling.
+        </p>
+    </div>
+
+    <h3>Grading</h3>
+
+    <table>
+        <tr>
+            <th>Requirement</th>
+            <th>Points</th>
+        </tr>
+        <tr>
+            <td>Entities and Attributes</td>
+            <td>20</td>
+        </tr>
+        <tr>
+            <td>Primary Keys and Foreign Keys</td>
+            <td>20</td>
+        </tr>
+        <tr>
+            <td>Relationships and Cardinality</td>
+            <td>20</td>
+        </tr>
+        <tr>
+            <td>Entity Relationship Diagram</td>
+            <td>30</td>
+        </tr>
+        <tr>
+            <td>Design Explanation</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <th>Total</th>
+            <th>100</th>
+        </tr>
+    </table>
+
+</section>
+
 </main>
 
 <footer>
