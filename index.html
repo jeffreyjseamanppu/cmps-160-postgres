@@ -183,7 +183,7 @@
 
 <header id="top">
     <h1>CMPS 160 - PostgreSQL</h1>
-    <p>PostgreSQL Database Systems - Modules 2 &amp; 3</p>
+    <p>PostgreSQL Database Systems - Modules 2, 3 &amp; 4</p>
 </header>
 
 <nav>
@@ -196,7 +196,12 @@
     <a href="#module3-lecture">M3 Lecture</a>
     <a href="#module3-lab">M3 Lab</a>
     <a href="#module3-homework">M3 Homework</a>
-    <a href="#module3-discussion">Discussion</a>
+    <a href="#module3-discussion">M3 Discussion</a>
+    <a href="#module4">Module 4</a>
+    <a href="#module4-lecture">M4 Lecture</a>
+    <a href="#module4-lab">M4 Lab</a>
+    <a href="#module4-homework">M4 Homework</a>
+    <a href="#module4-discussion">M4 Discussion</a>
 </nav>
 
 <main>
@@ -2322,6 +2327,111 @@ DEPARTMENT
     <a class="top-link" href="#top">Back to Top</a>
 
 </section>
+
+
+<!-- MODULE 4 -->
+<section id="module4">
+<h2>Module 4 - Creating Databases, Tables &amp; Data Types</h2>
+<p>In Module 2, we designed relational databases. In Module 3, we normalized those designs. In Module 4, we turn those designs into working PostgreSQL databases.</p>
+<div class="important"><strong>Big Question:</strong><p>How do we turn a normalized ERD into an actual PostgreSQL database?</p></div>
+<h3>Learning Objectives</h3>
+<div class="objective"><ul>
+<li>Explain the purpose of Data Definition Language (DDL).</li><li>Create a PostgreSQL database and tables.</li><li>Select appropriate PostgreSQL data types.</li><li>Create primary keys and foreign keys.</li><li>Use NOT NULL, UNIQUE, DEFAULT, and CHECK constraints.</li><li>Use identity columns for generated identifiers.</li><li>Explain why table creation order matters.</li><li>Modify tables with ALTER TABLE and verify database structures.</li>
+</ul></div>
+<h3>Learning Resources</h3>
+<ul><li><a href="https://www.postgresql.org/docs/current/ddl.html" target="_blank">PostgreSQL - Data Definition</a></li><li><a href="https://www.postgresql.org/docs/current/datatype.html" target="_blank">PostgreSQL - Data Types</a></li><li><a href="https://www.postgresql.org/docs/current/ddl-constraints.html" target="_blank">PostgreSQL - Constraints</a></li></ul>
+</section>
+<section id="module4-lecture"><h2>Module 4 Lecture - Building a PostgreSQL Database</h2>
+<h3>From ERD to PostgreSQL</h3><p>An ERD is the blueprint. PostgreSQL is where we implement that blueprint.</p>
+<div class="diagram">Module 2 → Design the database
+Module 3 → Normalize the database
+Module 4 → Build the database
+Module 5 → Query the data</div>
+<h3>Data Definition Language</h3><div class="diagram">CREATE DATABASE → Create a database
+CREATE TABLE → Create a table
+ALTER TABLE → Change a table
+DROP TABLE → Remove a table</div>
+<h3>Create a Database</h3><pre><code>CREATE DATABASE cmps160_module4;</code></pre>
+<h3>Create a Table</h3><pre><code>CREATE TABLE department (
+    department_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    department_name VARCHAR(100) NOT NULL UNIQUE
+);</code></pre>
+<h3>Common PostgreSQL Data Types</h3><table><tr><th>Type</th><th>Use</th><th>Example</th></tr><tr><td>INTEGER</td><td>Whole numbers</td><td>42</td></tr><tr><td>VARCHAR(n)</td><td>Limited-length text</td><td>CMPS160</td></tr><tr><td>TEXT</td><td>Longer text</td><td>Description</td></tr><tr><td>DATE</td><td>Calendar date</td><td>2026-09-21</td></tr><tr><td>TIMESTAMP</td><td>Date and time</td><td>2026-09-21 14:30</td></tr><tr><td>NUMERIC(p,s)</td><td>Exact decimals</td><td>19.99</td></tr><tr><td>BOOLEAN</td><td>True/false</td><td>TRUE</td></tr></table>
+<h3>Constraints</h3><pre><code>first_name VARCHAR(50) NOT NULL
+email VARCHAR(100) UNIQUE
+active BOOLEAN DEFAULT TRUE
+credit_hours INTEGER CHECK (credit_hours &gt; 0)</code></pre>
+<h3>Foreign Keys</h3><pre><code>CREATE TABLE student (
+    student_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    major_id INTEGER,
+    FOREIGN KEY (major_id) REFERENCES major(major_id)
+);</code></pre>
+<div class="important"><strong>Creation Order Matters:</strong><p>A referenced table must exist before another table can create a foreign key to it.</p></div>
+<div class="diagram">DEPARTMENT → MAJOR → STUDENT
+DEPARTMENT → PROFESSOR → COURSE → ENROLLMENT</div>
+<h3>ALTER TABLE</h3><pre><code>ALTER TABLE student
+ADD COLUMN phone VARCHAR(20);</code></pre>
+<h3>Verify Your Database</h3><pre><code>SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+ORDER BY table_name;</code></pre><pre><code>SELECT column_name, data_type, is_nullable
+FROM information_schema.columns
+WHERE table_name = 'student'
+ORDER BY ordinal_position;</code></pre>
+</section>
+<section id="module4-lab"><h2>Module 4 Lab - Build the University Database</h2><p>Use the normalized university design from Module 3 and build it in PostgreSQL.</p>
+<div class="lab-step"><h3>Part 1 - Create the Database</h3><pre><code>CREATE DATABASE cmps160_module4;</code></pre><p>Connect to it in pgAdmin and open the Query Tool.</p></div>
+<div class="lab-step"><h3>Part 2 - Review the ERD</h3><div class="diagram">DEPARTMENT
+MAJOR
+STUDENT
+PROFESSOR
+COURSE
+ENROLLMENT</div><p>Identify each primary key, foreign key, and relationship before writing SQL.</p></div>
+<div class="lab-step"><h3>Part 3 - Determine Creation Order</h3><p>Write the order in which the six tables must be created and explain why.</p></div>
+<div class="lab-step"><h3>Part 4 - Create DEPARTMENT</h3><pre><code>CREATE TABLE department (
+    department_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    department_name VARCHAR(100) NOT NULL UNIQUE
+);</code></pre></div>
+<div class="lab-step"><h3>Part 5 - Create the Remaining Tables</h3><p>Create MAJOR, STUDENT, PROFESSOR, COURSE, and ENROLLMENT using appropriate data types, primary keys, foreign keys, NOT NULL constraints, and UNIQUE constraints.</p></div>
+<div class="lab-step"><h3>Part 6 - Create ENROLLMENT</h3><pre><code>CREATE TABLE enrollment (
+    student_id INTEGER NOT NULL,
+    course_id INTEGER NOT NULL,
+    semester VARCHAR(30) NOT NULL,
+    grade VARCHAR(5),
+    PRIMARY KEY (student_id, course_id),
+    FOREIGN KEY (student_id) REFERENCES student(student_id),
+    FOREIGN KEY (course_id) REFERENCES course(course_id)
+);</code></pre><div class="discussion"><strong>Think About It:</strong><p>What limitation would this simplified key create if a student retakes the same course in another semester?</p></div></div>
+<div class="lab-step"><h3>Part 7 - Verify the Tables</h3><pre><code>SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+ORDER BY table_name;</code></pre></div>
+<div class="lab-step"><h3>Part 8 - Practice ALTER TABLE</h3><pre><code>ALTER TABLE student
+ADD COLUMN phone VARCHAR(20);</code></pre></div>
+<div class="lab-step"><h3>Part 9 - Save Your Work</h3><p>Save your successful SQL as <code>module4_university_database.sql</code>.</p></div>
+<h3>Lab Submission</h3><ol><li>Final ERD.</li><li>Completed SQL script.</li><li>Screenshot of the database and all six tables.</li><li>Screenshot of a column verification query.</li><li>Screenshot showing the added phone column.</li><li>Short explanation of why table creation order matters.</li></ol>
+</section>
+<section id="module4-homework"><h2>Module 4 Homework - Build a Sports League Database</h2><p>Take the Sports League design from Module 2 and implement it in PostgreSQL.</p>
+<div class="objective"><strong>Assignment Objective:</strong><p>Translate an ERD into valid PostgreSQL DDL using appropriate data types, keys, relationships, and constraints.</p></div>
+<h3>Required Tables</h3><div class="diagram">TEAM
+PLAYER
+COACH
+VENUE
+GAME</div>
+<h3>Requirements</h3><ul><li>Create a database named <code>sports_league</code>.</li><li>Create at least five tables.</li><li>Give every table a primary key.</li><li>Create appropriate foreign keys.</li><li>Use at least three PostgreSQL data types.</li><li>Use at least three NOT NULL constraints.</li><li>Use at least one UNIQUE constraint.</li><li>Use at least one CHECK or DEFAULT constraint.</li><li>Use at least one identity-generated primary key.</li><li>Use ALTER TABLE to add one reasonable new column.</li></ul>
+<h3>Verification</h3><pre><code>SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+ORDER BY table_name;</code></pre>
+<h3>Reflection</h3><p>Write 250-400 words explaining how your ERD influenced your tables, how you selected data types and keys, why creation order mattered, and one implementation challenge.</p>
+<h3>Submission</h3><ol><li>Final Sports League ERD.</li><li>Complete .sql file.</li><li>Screenshots of the database and tables.</li><li>Verification-query results.</li><li>250-400 word reflection.</li></ol>
+<h3>Grading</h3><table><tr><th>Requirement</th><th>Points</th></tr><tr><td>Database and Table Creation</td><td>20</td></tr><tr><td>Data Types and Constraints</td><td>20</td></tr><tr><td>Primary Keys, Foreign Keys &amp; Relationships</td><td>25</td></tr><tr><td>ALTER TABLE &amp; Verification</td><td>15</td></tr><tr><td>SQL Organization and Accuracy</td><td>10</td></tr><tr><td>Reflection</td><td>10</td></tr><tr><th>Total</th><th>100</th></tr></table>
+</section>
+<section id="module4-discussion"><h2>Module 4 Discussion - Choosing the Right Data Type</h2><div class="discussion"><strong>Discussion Question:</strong><p>Select three pieces of real-world data such as a phone number, ZIP code, price, date, ID, email address, or true/false value. Identify the PostgreSQL data type you would use for each, explain why, and describe one problem that could occur if the wrong data type were selected.</p></div><p><strong>Requirements:</strong> 250-300 words and one reply to a classmate.</p></section>
+<section id="module4-summary"><h2>Module 4 Summary</h2><p>You created databases and tables, selected data types, implemented keys and constraints, modified tables, and verified database structure.</p><div class="important"><strong>Main Takeaway:</strong><p>Database design tells us what the database should look like. PostgreSQL DDL allows us to build that design correctly.</p></div><h3>Coming Next</h3><p><strong>Module 5 - SQL Basics: SELECT, WHERE &amp; ORDER BY</strong></p><a class="top-link" href="#top">Back to Top</a></section>
 
 </main>
 
