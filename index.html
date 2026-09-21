@@ -189,6 +189,11 @@
     <a href="#erd">ERDs</a>
     <a href="#exercise">Exercise</a>
     <a href="#lab">Lab</a>
+    <a href="#module3">Module 3</a>
+    <a href="#module3-lecture">Lecture</a>
+    <a href="#module3-lab">Lab</a>
+    <a href="#module3-homework">Homework</a>
+    <a href="#module3-discussion">Discussion</a>
 </nav>
 
 <main>
@@ -1296,6 +1301,1050 @@ TEAM  1 -------- * PLAYER
             <th>100</th>
         </tr>
     </table>
+
+</section>
+<!-- ========================================================= -->
+<!-- MODULE 3 - DATABASE NORMALIZATION                          -->
+<!-- ========================================================= -->
+
+<section id="module3">
+
+    <h2>Module 3 - Database Normalization</h2>
+
+    <p>
+        In Module 2, we learned how to identify entities, attributes,
+        primary keys, foreign keys, and relationships.
+    </p>
+
+    <p>
+        In Module 3, we will take the next step and determine whether
+        our database is actually designed correctly.
+    </p>
+
+    <div class="important">
+        <strong>Big Question:</strong>
+        <p>
+            Just because a database works, does that mean it is
+            designed well?
+        </p>
+    </div>
+
+    <p>
+        Database normalization helps organize data to reduce unnecessary
+        duplication, improve data integrity, and make databases easier
+        to maintain.
+    </p>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- LEARNING OBJECTIVES                                       -->
+<!-- ========================================================= -->
+
+<section id="module3-objectives">
+
+    <h2>Module 3 Learning Objectives</h2>
+
+    <div class="objective">
+
+        <p>Upon successful completion of this module, students should be able to:</p>
+
+        <ul>
+            <li>Explain the purpose of database normalization.</li>
+            <li>Identify unnecessary data redundancy.</li>
+            <li>Explain insertion, update, and deletion anomalies.</li>
+            <li>Explain First Normal Form (1NF).</li>
+            <li>Explain Second Normal Form (2NF).</li>
+            <li>Explain Third Normal Form (3NF).</li>
+            <li>Identify repeating groups and non-atomic values.</li>
+            <li>Recognize partial dependencies.</li>
+            <li>Recognize transitive dependencies.</li>
+            <li>Transform poorly designed tables into normalized tables.</li>
+            <li>Identify appropriate primary and foreign keys.</li>
+            <li>Create an ERD representing a normalized database.</li>
+        </ul>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- LEARNING RESOURCES                                        -->
+<!-- ========================================================= -->
+
+<section id="module3-resources">
+
+    <h2>Learning Resources</h2>
+
+    <h3>Required Review</h3>
+
+    <p>
+        Before beginning Module 3, review the Module 2 material covering:
+    </p>
+
+    <ul>
+        <li>Entities and attributes</li>
+        <li>Primary keys</li>
+        <li>Foreign keys</li>
+        <li>One-to-many relationships</li>
+        <li>Many-to-many relationships</li>
+        <li>Junction tables</li>
+        <li>Entity Relationship Diagrams</li>
+    </ul>
+
+    <h3>PostgreSQL Documentation</h3>
+
+    <p>
+        PostgreSQL's Data Definition documentation provides additional
+        information about tables, constraints, and relational database
+        structures.
+    </p>
+
+    <p>
+        <a href="https://www.postgresql.org/docs/current/ddl.html"
+           target="_blank">
+            PostgreSQL - Data Definition Documentation
+        </a>
+    </p>
+
+    <h3>Database Normalization Reference</h3>
+
+    <p>
+        Review Microsoft's introduction to database normalization for
+        another explanation of organizing relational data and reducing
+        redundancy.
+    </p>
+
+    <p>
+        <a href="https://learn.microsoft.com/en-us/office/troubleshoot/access/database-normalization-description"
+           target="_blank">
+            Microsoft - Description of Database Normalization
+        </a>
+    </p>
+
+    <h3>ERD Tool</h3>
+
+    <p>
+        We will continue using dbdiagram.io to create Entity Relationship
+        Diagrams.
+    </p>
+
+    <p>
+        <a href="https://dbdiagram.io/"
+           target="_blank">
+            Open dbdiagram.io
+        </a>
+    </p>
+
+    <h3>Key Vocabulary</h3>
+
+    <div class="diagram">
+Normalization
+Data Redundancy
+Insertion Anomaly
+Update Anomaly
+Deletion Anomaly
+Functional Dependency
+Partial Dependency
+Transitive Dependency
+Atomic Value
+Repeating Group
+First Normal Form (1NF)
+Second Normal Form (2NF)
+Third Normal Form (3NF)
+    </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- LECTURE                                                   -->
+<!-- ========================================================= -->
+
+<section id="module3-lecture">
+
+    <h2>Module 3 Lecture - Database Normalization</h2>
+
+    <h3>Why Normalize a Database?</h3>
+
+    <p>
+        Consider the following table used to track university enrollment.
+    </p>
+
+    <table>
+
+        <tr>
+            <th>Student ID</th>
+            <th>Student Name</th>
+            <th>Course</th>
+            <th>Professor</th>
+            <th>Professor Office</th>
+            <th>Grade</th>
+        </tr>
+
+        <tr>
+            <td>1001</td>
+            <td>John Miller</td>
+            <td>CMPS160</td>
+            <td>Jeff Seaman</td>
+            <td>401</td>
+            <td>A</td>
+        </tr>
+
+        <tr>
+            <td>1001</td>
+            <td>John Miller</td>
+            <td>CMPS360</td>
+            <td>Jeff Seaman</td>
+            <td>401</td>
+            <td>B</td>
+        </tr>
+
+        <tr>
+            <td>1002</td>
+            <td>Sarah Johnson</td>
+            <td>CMPS160</td>
+            <td>Jeff Seaman</td>
+            <td>401</td>
+            <td>A</td>
+        </tr>
+
+        <tr>
+            <td>1003</td>
+            <td>Michael Brown</td>
+            <td>CMPS160</td>
+            <td>Jeff Seaman</td>
+            <td>401</td>
+            <td>B</td>
+        </tr>
+
+    </table>
+
+    <div class="discussion">
+
+        <strong>Class Discussion:</strong>
+
+        <p>
+            What information is being repeated in this table?
+        </p>
+
+        <p>
+            What happens if Professor Seaman moves from office 401
+            to office 405?
+        </p>
+
+    </div>
+
+    <p>
+        Professor information appears repeatedly. If the professor changes
+        offices, multiple records may need to be updated.
+    </p>
+
+
+    <!-- DATABASE ANOMALIES -->
+
+    <h3>Database Anomalies</h3>
+
+    <h4>Update Anomaly</h4>
+
+    <p>
+        The same information appears in multiple records. Changing the
+        information requires updating multiple rows.
+    </p>
+
+    <h4>Insertion Anomaly</h4>
+
+    <p>
+        We may be unable to add information about a new course until a
+        student enrolls in the course.
+    </p>
+
+    <h4>Deletion Anomaly</h4>
+
+    <p>
+        Deleting the last student enrolled in a course could accidentally
+        remove the only information we have about that course.
+    </p>
+
+    <div class="important">
+
+        <strong>Goal of Normalization:</strong>
+
+        <p>
+            Store each fact in the appropriate place and reduce unnecessary
+            duplication.
+        </p>
+
+    </div>
+
+
+    <!-- 1NF -->
+
+    <h2>First Normal Form - 1NF</h2>
+
+    <p>
+        First Normal Form requires each field to contain a single,
+        atomic value and eliminates repeating groups.
+    </p>
+
+    <h3>Bad Design</h3>
+
+    <table>
+
+        <tr>
+            <th>student_id</th>
+            <th>student_name</th>
+            <th>courses</th>
+        </tr>
+
+        <tr>
+            <td>1001</td>
+            <td>John Miller</td>
+            <td>CMPS160, CMPS360, CMPS262</td>
+        </tr>
+
+    </table>
+
+    <div class="warning">
+
+        <strong>Problem:</strong>
+
+        <p>
+            The courses column contains multiple values.
+        </p>
+
+    </div>
+
+    <h3>Better Design</h3>
+
+    <table>
+
+        <tr>
+            <th>student_id</th>
+            <th>student_name</th>
+            <th>course</th>
+        </tr>
+
+        <tr>
+            <td>1001</td>
+            <td>John Miller</td>
+            <td>CMPS160</td>
+        </tr>
+
+        <tr>
+            <td>1001</td>
+            <td>John Miller</td>
+            <td>CMPS360</td>
+        </tr>
+
+        <tr>
+            <td>1001</td>
+            <td>John Miller</td>
+            <td>CMPS262</td>
+        </tr>
+
+    </table>
+
+    <h3>Another 1NF Violation</h3>
+
+    <div class="diagram">
+STUDENT
+------------------
+student_id
+student_name
+course1
+course2
+course3
+course4
+    </div>
+
+    <div class="discussion">
+
+        <strong>Think About It:</strong>
+
+        <p>
+            What happens when a student takes a fifth course?
+        </p>
+
+    </div>
+
+    <div class="important">
+
+        <strong>Remember 1NF:</strong>
+
+        <p>
+            One value per field. Eliminate repeating groups.
+        </p>
+
+    </div>
+
+
+    <!-- 2NF -->
+
+    <h2>Second Normal Form - 2NF</h2>
+
+    <p>
+        A table must first satisfy 1NF.
+    </p>
+
+    <p>
+        In Second Normal Form, every non-key attribute must depend on
+        the entire key.
+    </p>
+
+    <div class="diagram">
+ENROLLMENT
+--------------------------------
+student_id
+course_id
+student_name
+course_name
+grade
+    </div>
+
+    <p>
+        Assume the logical key is:
+    </p>
+
+    <pre><code>(student_id, course_id)</code></pre>
+
+    <p>Now consider these dependencies:</p>
+
+    <div class="diagram">
+student_id → student_name
+
+course_id → course_name
+
+student_id + course_id → grade
+    </div>
+
+    <p>
+        Student name only depends on student_id.
+    </p>
+
+    <p>
+        Course name only depends on course_id.
+    </p>
+
+    <p>
+        These are examples of partial dependencies.
+    </p>
+
+    <h3>Normalize the Tables</h3>
+
+    <div class="diagram">
+STUDENT
+----------------
+student_id PK
+student_name
+
+
+COURSE
+----------------
+course_id PK
+course_name
+
+
+ENROLLMENT
+----------------
+student_id PK/FK
+course_id PK/FK
+grade
+    </div>
+
+    <div class="important">
+
+        <strong>Remember 2NF:</strong>
+
+        <p>
+            Every non-key attribute should depend on the whole key.
+        </p>
+
+    </div>
+
+
+    <!-- 3NF -->
+
+    <h2>Third Normal Form - 3NF</h2>
+
+    <p>
+        A table must first satisfy 2NF.
+    </p>
+
+    <p>
+        In Third Normal Form, non-key attributes should depend on the
+        primary key rather than another non-key attribute.
+    </p>
+
+    <h3>Problem Design</h3>
+
+    <div class="diagram">
+STUDENT
+------------------------
+student_id PK
+student_name
+major_id
+major_name
+department_id
+department_name
+    </div>
+
+    <p>Notice the following dependencies:</p>
+
+    <div class="diagram">
+major_id → major_name
+
+department_id → department_name
+    </div>
+
+    <p>
+        Major and department information should not need to be repeated
+        for every student.
+    </p>
+
+    <h3>Normalized Design</h3>
+
+    <div class="diagram">
+STUDENT
+----------------
+student_id PK
+student_name
+major_id FK
+
+
+MAJOR
+----------------
+major_id PK
+major_name
+department_id FK
+
+
+DEPARTMENT
+----------------
+department_id PK
+department_name
+    </div>
+
+    <div class="important">
+
+        <strong>Remember 3NF:</strong>
+
+        <p>
+            Non-key attributes should depend on the key, not another
+            non-key attribute.
+        </p>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <h3>Normalization Summary</h3>
+
+    <table>
+
+        <tr>
+            <th>Normal Form</th>
+            <th>Main Idea</th>
+        </tr>
+
+        <tr>
+            <td><strong>1NF</strong></td>
+            <td>One value per field and no repeating groups.</td>
+        </tr>
+
+        <tr>
+            <td><strong>2NF</strong></td>
+            <td>Every non-key attribute depends on the whole key.</td>
+        </tr>
+
+        <tr>
+            <td><strong>3NF</strong></td>
+            <td>Non-key attributes depend on the key, not other non-key attributes.</td>
+        </tr>
+
+    </table>
+
+    <div class="important">
+
+        <strong>Main Takeaway:</strong>
+
+        <p>
+            Normalization is not simply about creating more tables.
+            It is about determining where each piece of information
+            logically belongs.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- MODULE 3 LAB                                               -->
+<!-- ========================================================= -->
+
+<section id="module3-lab">
+
+    <h2>Module 3 Lab - Normalize a University Database</h2>
+
+    <h3>Scenario</h3>
+
+    <p>
+        Point Park University has inherited a database containing
+        student, course, professor, and enrollment information in
+        one large table.
+    </p>
+
+    <div class="diagram">
+UNIVERSITY_DATA
+--------------------------------
+student_id
+student_first_name
+student_last_name
+student_email
+major_id
+major_name
+course_id
+course_name
+credit_hours
+professor_id
+professor_first_name
+professor_last_name
+professor_email
+department_id
+department_name
+semester
+grade
+    </div>
+
+
+    <div class="lab-step">
+
+        <h3>Part 1 - Analyze the Existing Design</h3>
+
+        <p>
+            Identify information that will be repeated across multiple rows.
+        </p>
+
+        <p>Answer the following:</p>
+
+        <ol>
+            <li>If 25 students take CMPS160, how many times could the course name appear?</li>
+            <li>If a professor teaches 100 students, how many times could the professor's email appear?</li>
+            <li>What happens if a professor changes their email address?</li>
+            <li>What happens if the last student enrolled in a course drops the course?</li>
+            <li>Identify an update anomaly.</li>
+            <li>Identify an insertion anomaly.</li>
+            <li>Identify a deletion anomaly.</li>
+        </ol>
+
+    </div>
+
+
+    <div class="lab-step">
+
+        <h3>Part 2 - Convert the Database to 1NF</h3>
+
+        <p>
+            Examine the table for repeating groups and non-atomic values.
+        </p>
+
+        <p>
+            Modify the design so that every field contains a single value.
+        </p>
+
+    </div>
+
+
+    <div class="lab-step">
+
+        <h3>Part 3 - Convert the Database to 2NF</h3>
+
+        <p>
+            Determine which attributes depend on:
+        </p>
+
+        <div class="diagram">
+student_id
+course_id
+professor_id
+        </div>
+
+        <p>
+            Separate attributes that do not depend on the entire logical key.
+        </p>
+
+    </div>
+
+
+    <div class="lab-step">
+
+        <h3>Part 4 - Convert the Database to 3NF</h3>
+
+        <p>
+            Look for attributes that depend on other non-key attributes.
+        </p>
+
+        <p>For example:</p>
+
+        <div class="diagram">
+department_id → department_name
+
+major_id → major_name
+        </div>
+
+        <p>
+            Create additional entities where necessary.
+        </p>
+
+    </div>
+
+
+    <div class="lab-step">
+
+        <h3>Part 5 - Create the Final ERD</h3>
+
+        <p>
+            Use dbdiagram.io to create an ERD showing your final normalized
+            database.
+        </p>
+
+        <p>
+            Your final design should include appropriate entities such as:
+        </p>
+
+        <div class="diagram">
+STUDENT
+MAJOR
+DEPARTMENT
+PROFESSOR
+COURSE
+ENROLLMENT
+        </div>
+
+        <p>Your ERD must clearly identify:</p>
+
+        <ul>
+            <li>Primary keys</li>
+            <li>Foreign keys</li>
+            <li>Table relationships</li>
+            <li>Relationship cardinality</li>
+        </ul>
+
+        <p>
+            <a href="https://dbdiagram.io/"
+               target="_blank">
+                Open dbdiagram.io
+            </a>
+        </p>
+
+    </div>
+
+
+    <div class="lab-step">
+
+        <h3>Part 6 - Explain Your Design</h3>
+
+        <p>
+            Write a short explanation describing how your database changed
+            during normalization.
+        </p>
+
+        <p>
+            Include at least one example of a change you made for:
+        </p>
+
+        <ul>
+            <li>First Normal Form</li>
+            <li>Second Normal Form</li>
+            <li>Third Normal Form</li>
+        </ul>
+
+    </div>
+
+
+    <h3>Lab Submission</h3>
+
+    <p>
+        Submit one PDF containing:
+    </p>
+
+    <ol>
+        <li>Your analysis of the original database.</li>
+        <li>Your 1NF design.</li>
+        <li>Your 2NF design.</li>
+        <li>Your 3NF design.</li>
+        <li>Your completed dbdiagram.io ERD.</li>
+        <li>Your written explanation.</li>
+    </ol>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- HOMEWORK                                                   -->
+<!-- ========================================================= -->
+
+<section id="module3-homework">
+
+    <h2>Module 3 Homework - Normalize an Online Store Database</h2>
+
+    <h3>Scenario</h3>
+
+    <p>
+        A small online retailer currently stores customer, order,
+        product, and employee information in one table.
+    </p>
+
+    <div class="diagram">
+ORDER_DATA
+--------------------------------
+order_id
+order_date
+
+customer_id
+customer_name
+customer_email
+customer_phone
+
+product_id
+product_name
+product_category
+product_price
+
+quantity
+
+employee_id
+employee_name
+employee_department
+    </div>
+
+    <p>
+        Customers can place multiple orders and each order can contain
+        multiple products.
+    </p>
+
+
+    <h3>Assignment</h3>
+
+    <p>
+        Analyze the existing table and identify data redundancy and
+        potential database anomalies.
+    </p>
+
+    <p>
+        Transform the database through:
+    </p>
+
+    <div class="diagram">
+Original Design
+      ↓
+First Normal Form (1NF)
+      ↓
+Second Normal Form (2NF)
+      ↓
+Third Normal Form (3NF)
+      ↓
+Final ERD
+    </div>
+
+    <p>
+        Your final database should contain appropriate entities.
+        Depending upon your design, these may include:
+    </p>
+
+    <div class="diagram">
+CUSTOMER
+ORDER
+ORDER_ITEM
+PRODUCT
+CATEGORY
+EMPLOYEE
+DEPARTMENT
+    </div>
+
+    <h3>Requirements</h3>
+
+    <p>Your completed assignment must:</p>
+
+    <ul>
+        <li>Identify data redundancy in the original table.</li>
+        <li>Identify potential database anomalies.</li>
+        <li>Show your 1NF design.</li>
+        <li>Show your 2NF design.</li>
+        <li>Show your 3NF design.</li>
+        <li>Identify all primary keys.</li>
+        <li>Identify all foreign keys.</li>
+        <li>Identify one-to-many relationships.</li>
+        <li>Identify any many-to-many relationships.</li>
+        <li>Include a final ERD created using dbdiagram.io.</li>
+    </ul>
+
+    <h3>Written Explanation</h3>
+
+    <p>
+        Write approximately 250-500 words explaining why your final
+        database design is better than the original design.
+    </p>
+
+    <h3>Homework Grading</h3>
+
+    <table>
+
+        <tr>
+            <th>Requirement</th>
+            <th>Points</th>
+        </tr>
+
+        <tr>
+            <td>Original Design Analysis &amp; Anomalies</td>
+            <td>15</td>
+        </tr>
+
+        <tr>
+            <td>First Normal Form</td>
+            <td>15</td>
+        </tr>
+
+        <tr>
+            <td>Second Normal Form</td>
+            <td>20</td>
+        </tr>
+
+        <tr>
+            <td>Third Normal Form</td>
+            <td>20</td>
+        </tr>
+
+        <tr>
+            <td>Final ERD &amp; Relationships</td>
+            <td>20</td>
+        </tr>
+
+        <tr>
+            <td>Written Explanation</td>
+            <td>10</td>
+        </tr>
+
+        <tr>
+            <th>Total</th>
+            <th>100</th>
+        </tr>
+
+    </table>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- DISCUSSION                                                 -->
+<!-- ========================================================= -->
+
+<section id="module3-discussion">
+
+    <h2>Module 3 Discussion - Is Normalization Always Better?</h2>
+
+    <div class="discussion">
+
+        <strong>Discussion Question:</strong>
+
+        <p>
+            Imagine a company has a database containing millions of records.
+            Normalizing the database reduces duplicate data, but retrieving
+            information may now require joining several tables.
+        </p>
+
+        <p>
+            Explain why normalization is important for data integrity.
+            Then discuss one potential disadvantage of dividing information
+            among many tables.
+        </p>
+
+        <p>
+            Would you always normalize a database as much as possible?
+            Explain your reasoning and provide an example.
+        </p>
+
+    </div>
+
+    <h3>Discussion Requirements</h3>
+
+    <ul>
+        <li>Initial response: approximately 250-300 words.</li>
+        <li>Clearly explain the importance of normalization.</li>
+        <li>Identify at least one potential disadvantage.</li>
+        <li>Provide a real-world or hypothetical example.</li>
+        <li>Respond to at least one classmate.</li>
+    </ul>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- MODULE 3 SUMMARY                                           -->
+<!-- ========================================================= -->
+
+<section id="module3-summary">
+
+    <h2>Module 3 Summary</h2>
+
+    <p>
+        This module introduced database normalization and demonstrated
+        how poor database designs can create duplicate data and database
+        anomalies.
+    </p>
+
+    <table>
+
+        <tr>
+            <th>Normal Form</th>
+            <th>Question to Ask</th>
+        </tr>
+
+        <tr>
+            <td><strong>1NF</strong></td>
+            <td>Does every field contain only one value?</td>
+        </tr>
+
+        <tr>
+            <td><strong>2NF</strong></td>
+            <td>Does every non-key attribute depend on the whole key?</td>
+        </tr>
+
+        <tr>
+            <td><strong>3NF</strong></td>
+            <td>Do non-key attributes depend only on the key?</td>
+        </tr>
+
+    </table>
+
+    <div class="important">
+
+        <strong>Module 3 Main Takeaway:</strong>
+
+        <p>
+            Good database design means storing each fact in the correct
+            location and connecting related information using keys and
+            relationships.
+        </p>
+
+    </div>
+
+    <h3>Coming Next</h3>
+
+    <p>
+        <strong>Module 4 - Creating Databases, Tables &amp; Data Types</strong>
+    </p>
+
+    <p>
+        Now that we understand how to design and normalize a relational
+        database, we will begin implementing those designs in PostgreSQL.
+    </p>
+
+    <a class="top-link" href="#top">Back to Top</a>
 
 </section>
 
