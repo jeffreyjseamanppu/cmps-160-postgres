@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>CMPS 160 - Module 2</title>
+    <title>CMPS 160 - PostgreSQL Database Systems</title>
 
     <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             margin: 0;
             font-family: Arial, Helvetica, sans-serif;
@@ -34,6 +38,8 @@
 
         nav {
             background: #111827;
+            overflow-x: auto;
+            white-space: nowrap;
             padding: 12px;
             text-align: center;
             position: sticky;
@@ -177,22 +183,19 @@
 
 <header id="top">
     <h1>CMPS 160 - PostgreSQL</h1>
-    <p>Module 2: Relational Database Design & Data Modeling</p>
+    <p>PostgreSQL Database Systems - Modules 2 &amp; 3</p>
 </header>
 
 <nav>
-    <a href="#objectives">Objectives</a>
-    <a href="#why-design">Why Design Matters</a>
-    <a href="#entities">Entities</a>
-    <a href="#keys">Keys</a>
-    <a href="#relationships">Relationships</a>
-    <a href="#erd">ERDs</a>
-    <a href="#exercise">Exercise</a>
-    <a href="#lab">Lab</a>
+    <a href="#objectives">Module 2</a>
+    <a href="#lab">M2 Lab</a>
+    <a href="#homework">M2 Homework</a>
     <a href="#module3">Module 3</a>
-    <a href="#module3-lecture">Lecture</a>
-    <a href="#module3-lab">Lab</a>
-    <a href="#module3-homework">Homework</a>
+    <a href="#module3-objectives">M3 Objectives</a>
+    <a href="#module3-resources">Resources</a>
+    <a href="#module3-lecture">M3 Lecture</a>
+    <a href="#module3-lab">M3 Lab</a>
+    <a href="#module3-homework">M3 Homework</a>
     <a href="#module3-discussion">Discussion</a>
 </nav>
 
@@ -896,45 +899,17 @@ CREATE TABLE enrollment (
 <h3>Step 4 - Execute the SQL Scripts</h3>
 
 <p>
-    Execute the scripts in the order shown below.
+    Open the Module 2/PostGres folder in the course repository and execute
+    the provided <code>.sql</code> scripts against your
+    <code>cmps160_module2</code> database.
 </p>
-
-<table>
-    <tr>
-        <th>Order</th>
-        <th>SQL File</th>
-        <th>Purpose</th>
-        <th>Completed</th>
-    </tr>
-
-    <tr>
-        <td>1</td>
-        <td>FILE1.sql</td>
-        <td>Create the initial database objects.</td>
-        <td>☐</td>
-    </tr>
-
-    <tr>
-        <td>2</td>
-        <td>FILE2.sql</td>
-        <td>Create or populate additional database objects.</td>
-        <td>☐</td>
-    </tr>
-
-    <tr>
-        <td>3</td>
-        <td>FILE3.sql</td>
-        <td>Load additional sample data.</td>
-        <td>☐</td>
-    </tr>
-</table>
 
 <div class="warning">
     <strong>Important:</strong>
-
     <p>
-        Run the files in the order provided. Some scripts may depend on
-        tables or other database objects created by an earlier script.
+        Use the SQL files provided in the repository. Do not use placeholder
+        filenames. Some scripts may depend on database objects created by
+        earlier scripts, so follow the order provided by your instructor.
     </p>
 </div>
 
@@ -1216,17 +1191,17 @@ TEAM  1 -------- * PLAYER
         <li>Relationship cardinality</li>
     </ul>
 
+    <h3>ERD Tool</h3>
+
     <p>
-        You may create your ERD using a tool such as:
+        Use <strong>dbdiagram.io</strong> to create your Entity Relationship Diagram.
+        Your diagram must show the tables, attributes, primary keys, foreign keys,
+        and relationships.
     </p>
 
-    <ul>
-        <li>draw.io / diagrams.net</li>
-        <li>Lucidchart</li>
-        <li>dbdiagram.io</li>
-        <li>Microsoft Visio</li>
-        <li>Another approved ERD tool</li>
-    </ul>
+    <p>
+        <a href="https://dbdiagram.io/" target="_blank">Open dbdiagram.io</a>
+    </p>
 
     <h3>Part 7 - Design Explanation</h3>
 
