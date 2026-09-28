@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CMPS 160 - Final Database Project</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.65;
+            margin: 0;
+            background-color: #f4f6f8;
+            color: #222;
+        }
+
+        header {
+            background-color: #1f3a5f;
+            color: white;
+            padding: 45px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        header h2 {
+            margin: 8px 0 0;
+            font-weight: normal;
+            color: white;
+        }
+
+        nav {
+            background-color: white;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        nav a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #1f3a5f;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 1050px;
+            margin: 30px auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+        }
+
+        section {
+            margin-bottom: 55px;
+        }
+
+        h2 {
+            color: #1f3a5f;
+            border-bottom: 2px solid #1f3a5f;
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            color: #315b87;
+            margin-top: 30px;
+        }
+
+        h4 {
+            color: #444;
+        }
+
+        .intro {
+            font-size: 1.1em;
+        }
+
+        .note {
+            background-color: #eef6ff;
+            border-left: 5px solid #1f6feb;
+            padding: 17px;
+            margin: 20px 0;
+        }
+
+        .important {
+            background-color: #fff4e5;
+            border-left: 5px solid #d97706;
+            padding: 17px;
+            margin: 20px 0;
+        }
+
+        .assignment {
+            background-color: #f3f8f3;
+            border-left: 5px solid #2e7d32;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .example {
+            background-color: #f8f5ff;
+            border-left: 5px solid #6842a5;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .phase {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 22px;
+            margin: 25px 0;
+        }
+
+        pre {
+            background-color: #1e1e1e;
+            color: #f8f8f2;
+            padding: 18px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: Consolas, Monaco, monospace;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 11px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #e9eef5;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .erd {
+            background-color: #f7f7f7;
+            border: 1px solid #ccc;
+            padding: 25px;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+
+        footer {
+            text-align: center;
+            color: #666;
+            padding: 30px;
+        }
+
+        .checklist li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>CMPS 160 – Databases</h1>
+    <h2>Individual Final Database Project</h2>
+    <p>Design • Build • Populate • Query • Automate • Demonstrate</p>
+</header>
+
+<nav>
+    <a href="#overview">Overview</a>
+    <a href="#requirements">Requirements</a>
+    <a href="#phases">Project Phases</a>
+    <a href="#example">Wine Example</a>
+    <a href="#submission">Submission</a>
+    <a href="#grading">Grading</a>
+</nav>
+
+<main>
+
+<!-- ===================================================== -->
+<!-- OVERVIEW -->
+<!-- ===================================================== -->
+
+<section id="overview">
+
+<h2>Final Project Overview</h2>
+
+<p class="intro">
+For your final project, you will independently design and build
+a complete relational database based on a topic that interests you.
+</p>
+
+<p>
+This project is designed to bring together the major concepts
+covered throughout the semester. You will begin with an idea,
+design the database structure, create the tables, populate the
+database, manipulate the data, write queries, and create stored
+procedures.
+</p>
+
+<p>
+You will also document your completed database using screenshots
+and demonstrate that your database works correctly.
+</p>
+
+<div class="assignment">
+
+<h3>Your Goal</h3>
+
+<p>
+Create a database that could realistically be used to manage
+information related to your chosen topic.
+</p>
+
+<p>
+Your project should answer the following question:
+</p>
+
+<p class="center">
+<strong>
+"If someone actually needed a database for this topic,
+what information would they need to store and what questions
+would they need the database to answer?"
+</strong>
+</p>
+
+</div>
+
+
+<h3>Choosing a Topic</h3>
+
+<p>
+Your database may be based on nearly any appropriate topic
+that interests you.
+</p>
+
+<p>Examples include:</p>
+
+<ul>
+    <li>Sports Team or League</li>
+    <li>Video Game Collection</li>
+    <li>Music Library</li>
+    <li>Restaurant</li>
+    <li>Winery or Brewery</li>
+    <li>Auto Dealership</li>
+    <li>Gym or Fitness Center</li>
+    <li>Pet Adoption Center</li>
+    <li>Online Store</li>
+    <li>Movie Collection</li>
+    <li>Hotel</li>
+    <li>School</li>
+    <li>Hospital or Medical Office</li>
+    <li>Bookstore</li>
+    <li>Concert or Event Management</li>
+    <li>Another instructor-approved topic</li>
+</ul>
+
+<div class="note">
+<strong>Tip:</strong> Choose something you actually understand
+or enjoy. Knowing the topic will make it much easier to determine
+what data should be stored and how the tables should relate.
+</div>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- REQUIREMENTS -->
+<!-- ===================================================== -->
+
+<section id="requirements">
+
+<h2>Project Requirements</h2>
+
+<p>
+Every student may choose a different topic, but every project
+must satisfy the following technical requirements.
+</p>
+
+<table>
+
+<tr>
+    <th>Component</th>
+    <th>Minimum Requirement</th>
+</tr>
+
+<tr>
+    <td>Database Proposal</td>
+    <td>Explain the topic, purpose, users, and information being tracked.</td>
+</tr>
+
+<tr>
+    <td>ER Diagram</td>
+    <td>Show tables, attributes, primary keys, foreign keys, and relationships.</td>
+</tr>
+
+<tr>
+    <td>Tables</td>
+    <td>Minimum of 5 related tables.</td>
+</tr>
+
+<tr>
+    <td>Primary Keys</td>
+    <td>Every table must contain an appropriate primary key.</td>
+</tr>
+
+<tr>
+    <td>Foreign Keys</td>
+    <td>Relationships must be implemented using foreign keys.</td>
+</tr>
+
+<tr>
+    <td>Relationships</td>
+    <td>Include one-to-many and at least one many-to-many relationship.</td>
+</tr>
+
+<tr>
+    <td>Constraints</td>
+    <td>Use appropriate NOT NULL, UNIQUE, CHECK, and other constraints.</td>
+</tr>
+
+<tr>
+    <td>Data</td>
+    <td>At least 50 records distributed logically among the tables.</td>
+</tr>
+
+<tr>
+    <td>INSERT</td>
+    <td>SQL scripts must demonstrate adding data.</td>
+</tr>
+
+<tr>
+    <td>UPDATE</td>
+    <td>At least 3 different UPDATE operations.</td>
+</tr>
+
+<tr>
+    <td>DELETE</td>
+    <td>At least 3 different DELETE operations.</td>
+</tr>
+
+<tr>
+    <td>SELECT Queries</td>
+    <td>At least 10 useful queries.</td>
+</tr>
+
+<tr>
+    <td>JOIN Queries</td>
+    <td>At least 3 queries using multiple tables.</td>
+</tr>
+
+<tr>
+    <td>Aggregate Functions</td>
+    <td>Use COUNT, SUM, AVG, MIN, and/or MAX.</td>
+</tr>
+
+<tr>
+    <td>GROUP BY</td>
+    <td>At least 2 meaningful GROUP BY queries.</td>
+</tr>
+
+<tr>
+    <td>Stored Procedures</td>
+    <td>At least 2 useful stored procedures.</td>
+</tr>
+
+<tr>
+    <td>Documentation</td>
+    <td>Explain the purpose of important scripts and procedures.</td>
+</tr>
+
+<tr>
+    <td>Screenshots</td>
+    <td>Provide evidence that the database and scripts work.</td>
+</tr>
+
+<tr>
+    <td>Final Demonstration</td>
+    <td>Demonstrate the completed database.</td>
+</tr>
+
+</table>
+
+
+<div class="important">
+<strong>Important:</strong> Your SQL queries should have a purpose.
+Do not create queries simply to satisfy a requirement.
+Think about questions that an actual user, manager, customer,
+or organization would want the database to answer.
+</div>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- PROJECT PHASES -->
+<!-- ===================================================== -->
+
+<section id="phases">
+
+<h2>Project Phases</h2>
+
+
+<div class="phase">
+
+<h3>Phase 1 – Database Proposal</h3>
+
+<p>
+Before creating your database, submit a short proposal explaining
+what you plan to build.
+</p>
+
+<p>Your proposal should contain:</p>
+
+<ul>
+    <li>Database name</li>
+    <li>Topic</li>
+    <li>Purpose of the database</li>
+    <li>Who would use the database</li>
+    <li>What information will be stored</li>
+    <li>At least five potential entities/tables</li>
+</ul>
+
+</div>
+
+
+<div class="phase">
+
+<h3>Phase 2 – ER Diagram</h3>
+
+<p>
+Design your database before writing SQL.
+</p>
+
+<p>Your Entity Relationship Diagram must identify:</p>
+
+<ul>
+    <li>Tables / Entities</li>
+    <li>Attributes / Columns</li>
+    <li>Primary Keys</li>
+    <li>Foreign Keys</li>
+    <li>Relationships</li>
+    <li>Cardinality</li>
+</ul>
+
+<p>
+Your ER diagram should clearly show how information moves
+between related tables.
+</p>
+
+</div>
+
+
+<div class="phase">
+
+<h3>Phase 3 – Create the Database</h3>
+
+<p>
+Write SQL scripts that create all required tables.
+</p>
+
+<p>Your tables should include:</p>
+
+<ul>
+    <li>Appropriate data types</li>
+    <li>Primary keys</li>
+    <li>Foreign keys</li>
+    <li>NOT NULL constraints where appropriate</li>
+    <li>UNIQUE constraints where appropriate</li>
+    <li>CHECK constraints where appropriate</li>
+</ul>
+
+</div>
+
+
+<div class="phase">
+
+<h3>Phase 4 – Populate the Database</h3>
+
+<p>
+Create INSERT statements that add realistic data to your database.
+</p>
+
+<p>
+Your completed database must contain at least
+<strong>50 records</strong> distributed logically across your tables.
+</p>
+
+<p>
+The data should make sense for your project. Avoid simply inserting
+random values that have no relationship to the scenario.
+</p>
+
+</div>
+
+
+<div class="phase">
+
+<h3>Phase 5 – Manipulate the Data</h3>
+
+<p>Demonstrate each major CRUD operation:</p>
+
+<ul>
+    <li><strong>CREATE</strong> – INSERT new records.</li>
+    <li><strong>READ</strong> – SELECT information.</li>
+    <li><strong>UPDATE</strong> – Modify existing records.</li>
+    <li><strong>DELETE</strong> – Remove records.</li>
+</ul>
+
+<p>You must demonstrate at least:</p>
+
+<ul>
+    <li>3 UPDATE operations</li>
+    <li>3 DELETE operations</li>
+</ul>
+
+</div>
+
+
+<div class="phase">
+
+<h3>Phase 6 – Query the Database</h3>
+
+<p>
+Create at least 10 queries that answer useful questions
+about your data.
+</p>
+
+<p>Your queries should demonstrate:</p>
+
+<ul>
+    <li>SELECT</li>
+    <li>WHERE</li>
+    <li>ORDER BY</li>
+    <li>Multiple conditions</li>
+    <li>JOIN</li>
+    <li>Aggregate functions</li>
+    <li>GROUP BY</li>
+</ul>
+
+<p>
+At least three queries must retrieve information from
+multiple related tables.
+</p>
+
+</div>
+
+
+<div class="phase">
+
+<h3>Phase 7 – Stored Procedures</h3>
+
+<p>
+Create at least <strong>two stored procedures</strong>.
+</p>
+
+<p>
+Your procedures should accomplish useful tasks related to
+your database.
+</p>
+
+<p>Examples include:</p>
+
+<ul>
+    <li>Updating inventory</li>
+    <li>Changing a product price</li>
+    <li>Registering a student</li>
+    <li>Updating player statistics</li>
+    <li>Adding points to a customer account</li>
+    <li>Updating order status</li>
+</ul>
+
+</div>
+
+
+<div class="phase">
+
+<h3>Phase 8 – Documentation and Screenshots</h3>
+
+<p>
+Document your completed database using screenshots.
+</p>
+
+<p>Your screenshots should show:</p>
+
+<ol>
+    <li>Your completed ER Diagram</li>
+    <li>Your database and tables</li>
+    <li>Table data</li>
+    <li>INSERT operation</li>
+    <li>UPDATE operation</li>
+    <li>DELETE operation</li>
+    <li>SELECT queries</li>
+    <li>JOIN query</li>
+    <li>Aggregate query</li>
+    <li>Stored procedure</li>
+    <li>Stored procedure execution/results</li>
+</ol>
+
+</div>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- WINE EXAMPLE -->
+<!-- ===================================================== -->
+
+<section id="example">
+
+<h2>Completed Project Example – Winery Database</h2>
+
+<div class="example">
+
+<h3>Example Project</h3>
+
+<p>
+The following example demonstrates how the requirements could
+be applied to a winery.
+</p>
+
+<p>
+<strong>Database Name:</strong> Winery Management Database
+</p>
+
+<p>
+<strong>Purpose:</strong>
+Track wines, customers, orders, sales, and inventory.
+</p>
+
+<p>
+<strong>Users:</strong>
+Winery owners, managers, and employees.
+</p>
+
+</div>
+
+
+<h3>Example Tables</h3>
+
+<ul>
+    <li>customers</li>
+    <li>wines</li>
+    <li>wine_types</li>
+    <li>orders</li>
+    <li>order_details</li>
+    <li>inventory_transactions</li>
+</ul>
+
+
+<h3>Example ER Diagram</h3>
+
+<div class="erd">
+
+<pre>
+CUSTOMERS
+------------------------
+PK customer_id
+   first_name
+   last_name
+   email
+   phone
+
+        |
+        | 1 : MANY
+        |
+        V
+
+ORDERS
+------------------------
+PK order_id
+FK customer_id
+   order_date
+   total
+
+        |
+        | 1 : MANY
+        |
+        V
+
+ORDER_DETAILS
+------------------------
+PK order_detail_id
+FK order_id
+FK wine_id
+   quantity
+   unit_price
+
+        |
+        | MANY : 1
+        |
+        V
+
+WINES
+------------------------
+PK wine_id
+FK wine_type_id
+   wine_name
+   vintage
+   price
+   quantity
+
+        |
+        | MANY : 1
+        |
+        V
+
+WINE_TYPES
+------------------------
+PK wine_type_id
+   type_name
+</pre>
+
+</div>
+
+
+<h3>Example CREATE TABLE Script</h3>
+
+<pre><code>CREATE TABLE wine_types (
+    wine_type_id SERIAL PRIMARY KEY,
+    type_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE wines (
+    wine_id SERIAL PRIMARY KEY,
+    wine_name VARCHAR(100) NOT NULL,
+    wine_type_id INTEGER NOT NULL,
+    vintage INTEGER,
+    price DECIMAL(8,2) NOT NULL,
+    quantity INTEGER DEFAULT 0,
+
+    CONSTRAINT fk_wine_type
+        FOREIGN KEY (wine_type_id)
+        REFERENCES wine_types(wine_type_id)
+);
+
+CREATE TABLE customers (
+    customer_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    phone VARCHAR(20)
+);
+
+CREATE TABLE orders (
+    order_id SERIAL PRIMARY KEY,
+    customer_id INTEGER NOT NULL,
+    order_date DATE NOT NULL,
+    total DECIMAL(10,2),
+
+    CONSTRAINT fk_customer
+        FOREIGN KEY (customer_id)
+        REFERENCES customers(customer_id)
+);
+
+CREATE TABLE order_details (
+    order_detail_id SERIAL PRIMARY KEY,
+    order_id INTEGER NOT NULL,
+    wine_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    unit_price DECIMAL(8,2) NOT NULL,
+
+    FOREIGN KEY (order_id)
+        REFERENCES orders(order_id),
+
+    FOREIGN KEY (wine_id)
+        REFERENCES wines(wine_id)
+);</code></pre>
+
+
+<h3>Example INSERT</h3>
+
+<pre><code>INSERT INTO wine_types (type_name)
+VALUES
+('Red'),
+('White'),
+('Fruit'),
+('Rose');
+
+INSERT INTO wines
+(wine_name, wine_type_id, vintage, price, quantity)
+VALUES
+('Pinot Meow', 2, 2025, 20.00, 85),
+('Frosted Pear', 3, 2026, 18.00, 42),
+('Golden Hour', 2, 2025, 21.00, 35),
+('Nola Merlot', 1, 2024, 24.00, 27),
+('Midnight Mouser', 1, 2024, 28.00, 18);</code></pre>
+
+
+<h3>Example UPDATE</h3>
+
+<p>
+Assume five bottles of Pinot Meow were removed from inventory.
+</p>
+
+<pre><code>UPDATE wines
+SET quantity = quantity - 5
+WHERE wine_name = 'Pinot Meow';</code></pre>
+
+
+<h3>Example DELETE</h3>
+
+<pre><code>DELETE FROM customers
+WHERE customer_id = 10;</code></pre>
+
+<div class="note">
+<strong>Think About It:</strong>
+What happens if customer 10 already has orders?
+The foreign key relationship may prevent the customer from
+being deleted. This protects the integrity of related data.
+</div>
+
+
+<h3>Example Business Queries</h3>
+
+<h4>Find wines currently in stock:</h4>
+
+<pre><code>SELECT wine_name, price, quantity
+FROM wines
+WHERE quantity &gt; 0
+ORDER BY wine_name;</code></pre>
+
+
+<h4>Find wines under $25:</h4>
+
+<pre><code>SELECT wine_name, price
+FROM wines
+WHERE price &lt; 25
+ORDER BY price;</code></pre>
+
+
+<h4>Display customers and their orders:</h4>
+
+<pre><code>SELECT
+    c.first_name,
+    c.last_name,
+    o.order_id,
+    o.order_date,
+    o.total
+FROM customers c
+JOIN orders o
+    ON c.customer_id = o.customer_id
+ORDER BY o.order_date DESC;</code></pre>
+
+
+<h4>Determine the best-selling wines:</h4>
+
+<pre><code>SELECT
+    w.wine_name,
+    SUM(od.quantity) AS bottles_sold
+FROM wines w
+JOIN order_details od
+    ON w.wine_id = od.wine_id
+GROUP BY w.wine_name
+ORDER BY bottles_sold DESC;</code></pre>
+
+
+<h3>Example Stored Procedure</h3>
+
+<p>
+The winery could use a stored procedure to add bottles
+to inventory.
+</p>
+
+<pre><code>CREATE OR REPLACE PROCEDURE update_wine_inventory(
+    p_wine_id INTEGER,
+    p_quantity INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+    UPDATE wines
+    SET quantity = quantity + p_quantity
+    WHERE wine_id = p_wine_id;
+
+END;
+$$;</code></pre>
+
+<p>Execute the procedure:</p>
+
+<pre><code>CALL update_wine_inventory(1, 12);</code></pre>
+
+<p>
+This adds 12 bottles to the inventory of wine ID 1.
+</p>
+
+
+<h3>Second Stored Procedure Example</h3>
+
+<pre><code>CREATE OR REPLACE PROCEDURE update_wine_price(
+    p_wine_id INTEGER,
+    p_new_price DECIMAL
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+    UPDATE wines
+    SET price = p_new_price
+    WHERE wine_id = p_wine_id;
+
+END;
+$$;</code></pre>
+
+<p>Execute:</p>
+
+<pre><code>CALL update_wine_price(1, 22.00);</code></pre>
+
+
+<h3>Example Screenshot Documentation</h3>
+
+<p>
+A completed winery project would include screenshots demonstrating:
+</p>
+
+<table>
+
+<tr>
+    <th>Screenshot</th>
+    <th>What Should Be Shown</th>
+</tr>
+
+<tr>
+    <td>01</td>
+    <td>Completed Winery ER Diagram</td>
+</tr>
+
+<tr>
+    <td>02</td>
+    <td>Database and Tables</td>
+</tr>
+
+<tr>
+    <td>03</td>
+    <td>Wine Table and Sample Data</td>
+</tr>
+
+<tr>
+    <td>04</td>
+    <td>INSERT Script and Result</td>
+</tr>
+
+<tr>
+    <td>05</td>
+    <td>UPDATE Before and After</td>
+</tr>
+
+<tr>
+    <td>06</td>
+    <td>DELETE Operation</td>
+</tr>
+
+<tr>
+    <td>07</td>
+    <td>JOIN Query and Results</td>
+</tr>
+
+<tr>
+    <td>08</td>
+    <td>Best-Selling Wine Report</td>
+</tr>
+
+<tr>
+    <td>09</td>
+    <td>Stored Procedure</td>
+</tr>
+
+<tr>
+    <td>10</td>
+    <td>Stored Procedure Execution and Result</td>
+</tr>
+
+</table>
+
+
+<h3>Example Query Result</h3>
+
+<table>
+
+<tr>
+    <th>Wine</th>
+    <th>Bottles Sold</th>
+</tr>
+
+<tr>
+    <td>Pinot Meow</td>
+    <td>74</td>
+</tr>
+
+<tr>
+    <td>Frosted Pear</td>
+    <td>61</td>
+</tr>
+
+<tr>
+    <td>Golden Hour</td>
+    <td>48</td>
+</tr>
+
+<tr>
+    <td>Nola Merlot</td>
+    <td>36</td>
+</tr>
+
+<tr>
+    <td>Midnight Mouser</td>
+    <td>29</td>
+</tr>
+
+</table>
+
+<div class="important">
+<strong>Important:</strong>
+The winery database is an instructor example. Your final project
+must be your own design. Simply changing the names of the tables,
+columns, or data in this example does not constitute an original
+final project.
+</div>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- SUBMISSION -->
+<!-- ===================================================== -->
+
+<section id="submission">
+
+<h2>Final Submission</h2>
+
+<p>
+Organize your final project before submitting it.
+</p>
+
+<p>Your project folder should follow this structure:</p>
+
+<pre><code>lastname_final_database_project/
+
+│
+├── proposal.pdf
+│
+├── database_diagram.png
+│
+├── screenshots/
+│   ├── 01_database.png
+│   ├── 02_tables.png
+│   ├── 03_insert.png
+│   ├── 04_update.png
+│   ├── 05_delete.png
+│   ├── 06_queries.png
+│   └── 07_stored_procedure.png
+│
+└── sql/
+    ├── 01_create_database.sql
+    ├── 02_create_tables.sql
+    ├── 03_insert_data.sql
+    ├── 04_queries.sql
+    ├── 05_update_delete.sql
+    └── 06_stored_procedures.sql</code></pre>
+
+
+<h3>Before You Submit</h3>
+
+<ul class="checklist">
+    <li>☐ My database contains at least 5 related tables.</li>
+    <li>☐ Every table has a primary key.</li>
+    <li>☐ I correctly implemented foreign keys.</li>
+    <li>☐ My ER diagram matches my actual database.</li>
+    <li>☐ My database contains at least 50 records.</li>
+    <li>☐ My INSERT scripts work.</li>
+    <li>☐ I completed at least 3 UPDATE operations.</li>
+    <li>☐ I completed at least 3 DELETE operations.</li>
+    <li>☐ I created at least 10 useful SELECT queries.</li>
+    <li>☐ At least 3 queries use multiple tables.</li>
+    <li>☐ I used aggregate functions.</li>
+    <li>☐ I used GROUP BY.</li>
+    <li>☐ I created at least 2 stored procedures.</li>
+    <li>☐ I tested my stored procedures.</li>
+    <li>☐ I included screenshots showing my database working.</li>
+    <li>☐ All SQL files are organized and clearly commented.</li>
+</ul>
+
+</section>
+
+
+<!-- ===================================================== -->
+<!-- GRADING -->
+<!-- ===================================================== -->
+
+<section id="grading">
+
+<h2>Grading Rubric</h2>
+
+<p>
+The final database project is worth
+<strong>200 points</strong>.
+</p>
+
+<table>
+
+<tr>
+    <th>Category</th>
+    <th>Points</th>
+</tr>
+
+<tr>
+    <td>Proposal and Project Planning</td>
+    <td>20</td>
+</tr>
+
+<tr>
+    <td>ER Diagram and Database Design</td>
+    <td>30</td>
+</tr>
+
+<tr>
+    <td>Table Creation, Keys, Constraints, and Relationships</td>
+    <td>30</td>
+</tr>
+
+<tr>
+    <td>INSERT Statements and Sample Data</td>
+    <td>20</td>
+</tr>
+
+<tr>
+    <td>SELECT, UPDATE, DELETE, JOIN, and Aggregate Queries</td>
+    <td>40</td>
+</tr>
+
+<tr>
+    <td>Stored Procedures</td>
+    <td>25</td>
+</tr>
+
+<tr>
+    <td>Screenshots and Documentation</td>
+    <td>20</td>
+</tr>
+
+<tr>
+    <td>Final Demonstration and Professionalism</td>
+    <td>15</td>
+</tr>
+
+<tr>
+    <th>Total</th>
+    <th>200</th>
+</tr>
+
+</table>
+
+
+<div class="assignment">
+
+<h3>Final Reminder</h3>
+
+<p>
+This project is your opportunity to demonstrate everything
+you have learned about relational databases during the semester.
+</p>
+
+<p>
+Do not focus only on making the SQL work. Think about
+<strong>database design, data integrity, relationships, usability,
+and the questions your database should be able to answer.</strong>
+</p>
+
+<p>
+Build something you are interested in and create a database
+you would be proud to demonstrate.
+</p>
+
+</div>
+
+</section>
+
+</main>
+
+<footer>
+    <p>CMPS 160 – Databases | Individual Final Database Project</p>
+</footer>
+
+</body>
+</html>
