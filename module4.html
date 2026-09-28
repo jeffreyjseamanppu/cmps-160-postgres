@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMPS 160 - Module 4: SQL Fundamentals and Querying</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            background-color: #f4f6f8;
+            color: #222;
+        }
+
+        header {
+            background-color: #1f3a5f;
+            color: white;
+            padding: 35px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        header p {
+            margin-top: 10px;
+            font-size: 1.1em;
+        }
+
+        nav {
+            background-color: #ffffff;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+        }
+
+        nav a {
+            margin: 0 12px;
+            text-decoration: none;
+            color: #1f3a5f;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 30px auto;
+            background-color: white;
+            padding: 35px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            color: #1f3a5f;
+            border-bottom: 2px solid #1f3a5f;
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            color: #315b87;
+            margin-top: 30px;
+        }
+
+        code {
+            font-family: Consolas, Monaco, monospace;
+        }
+
+        pre {
+            background-color: #1e1e1e;
+            color: #f8f8f2;
+            padding: 18px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+
+        .note {
+            background-color: #eef6ff;
+            border-left: 5px solid #1f6feb;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .warning {
+            background-color: #fff8e5;
+            border-left: 5px solid #d89b00;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .assignment {
+            background-color: #f3f8f3;
+            border-left: 5px solid #2e7d32;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #e9eef5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>CMPS 160 – Databases</h1>
+    <p>Module 4: SQL Fundamentals and Querying</p>
+</header>
+
+<nav>
+    <a href="#objectives">Objectives</a>
+    <a href="#overview">Overview</a>
+    <a href="#lecture">Lecture</a>
+    <a href="#lab">Lab</a>
+    <a href="#homework">Homework</a>
+</nav>
+
+<main>
+
+<!-- ====================================================== -->
+<!-- MODULE OBJECTIVES -->
+<!-- ====================================================== -->
+
+<section id="objectives">
+
+<h2>Module Objectives</h2>
+
+<p>
+In this module, we move from designing databases to actually working
+with the data stored inside them. Structured Query Language (SQL) is
+the standard language used to communicate with relational database
+management systems.
+</p>
+
+<p>By the end of this module, students should be able to:</p>
+
+<ul>
+    <li>Explain the purpose of SQL in a relational database.</li>
+    <li>Identify common SQL data types.</li>
+    <li>Create database tables using SQL.</li>
+    <li>Define primary keys and foreign keys.</li>
+    <li>Insert records into a database table.</li>
+    <li>Retrieve data using the SELECT statement.</li>
+    <li>Filter query results using the WHERE clause.</li>
+    <li>Sort results using ORDER BY.</li>
+    <li>Use AND, OR, NOT, LIKE, IN, and BETWEEN.</li>
+    <li>Modify existing records using UPDATE.</li>
+    <li>Remove records using DELETE.</li>
+    <li>Use aggregate functions such as COUNT, SUM, AVG, MIN, and MAX.</li>
+    <li>Begin grouping database information using GROUP BY.</li>
+</ul>
+
+</section>
+
+
+<!-- ====================================================== -->
+<!-- MODULE OVERVIEW -->
+<!-- ====================================================== -->
+
+<section id="overview">
+
+<h2>Module Overview</h2>
+
+<p>
+During the previous modules, we discussed relational databases,
+entities, attributes, relationships, primary keys, foreign keys,
+and database design.
+</p>
+
+<p>
+Now we will begin communicating directly with a database using
+<strong>Structured Query Language (SQL)</strong>.
+</p>
+
+<p>
+SQL allows developers, database administrators, analysts, and
+applications to interact with relational databases.
+</p>
+
+<p>SQL can be used to:</p>
+
+<ul>
+    <li>Create database structures.</li>
+    <li>Add information to a database.</li>
+    <li>Search and retrieve information.</li>
+    <li>Modify existing information.</li>
+    <li>Delete information.</li>
+    <li>Summarize and analyze large collections of data.</li>
+</ul>
+
+<div class="note">
+<strong>Important:</strong> SQL is one of the most important skills
+you will learn in this course. SQL is used by software developers,
+data analysts, cybersecurity professionals, system administrators,
+and database administrators.
+</div>
+
+</section>
+
+
+<!-- ====================================================== -->
+<!-- LECTURE -->
+<!-- ====================================================== -->
+
+<section id="lecture">
+
+<h2>Lecture: Introduction to SQL</h2>
+
+<h3>1. What is SQL?</h3>
+
+<p>
+SQL stands for <strong>Structured Query Language</strong>.
+It is a language designed specifically for interacting with
+relational databases.
+</p>
+
+<p>Popular relational database systems that use SQL include:</p>
+
+<ul>
+    <li>PostgreSQL</li>
+    <li>MySQL</li>
+    <li>Microsoft SQL Server</li>
+    <li>Oracle Database</li>
+    <li>SQLite</li>
+</ul>
+
+<p>
+Although each database platform may contain additional features,
+the fundamental SQL commands are very similar.
+</p>
+
+
+<h3>2. Categories of SQL Commands</h3>
+
+<table>
+<tr>
+    <th>Category</th>
+    <th>Purpose</th>
+    <th>Examples</th>
+</tr>
+
+<tr>
+    <td>DDL</td>
+    <td>Defines database structures</td>
+    <td>CREATE, ALTER, DROP</td>
+</tr>
+
+<tr>
+    <td>DML</td>
+    <td>Changes data</td>
+    <td>INSERT, UPDATE, DELETE</td>
+</tr>
+
+<tr>
+    <td>DQL</td>
+    <td>Retrieves data</td>
+    <td>SELECT</td>
+</tr>
+</table>
+
+
+<h3>3. Creating a Table</h3>
+
+<p>
+Before information can be stored, a table must be created.
+The following example creates a customer table.
+</p>
+
+<pre><code>CREATE TABLE customers (
+    customer_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    city VARCHAR(50),
+    state CHAR(2)
+);</code></pre>
+
+
+<h3>4. Understanding Data Types</h3>
+
+<p>
+Every column in a relational database has a data type.
+The data type determines what kind of information can be stored.
+</p>
+
+<table>
+
+<tr>
+    <th>Data Type</th>
+    <th>Description</th>
+    <th>Example</th>
+</tr>
+
+<tr>
+    <td>INTEGER</td>
+    <td>Whole numbers</td>
+    <td>25</td>
+</tr>
+
+<tr>
+    <td>VARCHAR</td>
+    <td>Variable-length text</td>
+    <td>Jeff</td>
+</tr>
+
+<tr>
+    <td>DATE</td>
+    <td>Date values</td>
+    <td>2026-09-28</td>
+</tr>
+
+<tr>
+    <td>DECIMAL</td>
+    <td>Numbers containing decimals</td>
+    <td>19.99</td>
+</tr>
+
+<tr>
+    <td>BOOLEAN</td>
+    <td>True/False values</td>
+    <td>TRUE</td>
+</tr>
+
+</table>
+
+
+<h3>5. Inserting Data</h3>
+
+<p>
+The INSERT statement adds records to a table.
+</p>
+
+<pre><code>INSERT INTO customers
+(first_name, last_name, email, city, state)
+VALUES
+('Alex', 'Morgan', 'alex@example.com', 'Pittsburgh', 'PA');</code></pre>
+
+<p>Multiple records can also be inserted:</p>
+
+<pre><code>INSERT INTO customers
+(first_name, last_name, email, city, state)
+VALUES
+('Sarah', 'Smith', 'sarah@example.com', 'Washington', 'PA'),
+('James', 'Wilson', 'james@example.com', 'Pittsburgh', 'PA'),
+('Maria', 'Garcia', 'maria@example.com', 'Morgantown', 'WV');</code></pre>
+
+
+<h3>6. SELECT Statements</h3>
+
+<p>
+SELECT retrieves information from a database.
+</p>
+
+<pre><code>SELECT * FROM customers;</code></pre>
+
+<p>
+The asterisk (*) means return every column.
+</p>
+
+<p>You can also request specific columns:</p>
+
+<pre><code>SELECT first_name, last_name, email
+FROM customers;</code></pre>
+
+
+<h3>7. Filtering with WHERE</h3>
+
+<p>
+The WHERE clause limits which records are returned.
+</p>
+
+<pre><code>SELECT *
+FROM customers
+WHERE state = 'PA';</code></pre>
+
+<p>You can also compare numeric values.</p>
+
+<pre><code>SELECT *
+FROM products
+WHERE price > 20;</code></pre>
+
+
+<h3>8. AND and OR</h3>
+
+<p>
+Multiple conditions can be combined.
+</p>
+
+<pre><code>SELECT *
+FROM customers
+WHERE state = 'PA'
+AND city = 'Pittsburgh';</code></pre>
+
+<p>OR allows either condition to be true.</p>
+
+<pre><code>SELECT *
+FROM customers
+WHERE state = 'PA'
+OR state = 'WV';</code></pre>
+
+
+<h3>9. Using LIKE</h3>
+
+<p>
+LIKE searches for patterns inside text.
+</p>
+
+<pre><code>SELECT *
+FROM customers
+WHERE last_name LIKE 'S%';</code></pre>
+
+<p>
+The percent symbol (%) represents any number of characters.
+The query above finds last names beginning with S.
+</p>
+
+
+<h3>10. Using IN</h3>
+
+<p>
+IN is useful when checking several possible values.
+</p>
+
+<pre><code>SELECT *
+FROM customers
+WHERE state IN ('PA', 'WV', 'OH');</code></pre>
+
+
+<h3>11. Using BETWEEN</h3>
+
+<p>
+BETWEEN searches for values within a range.
+</p>
+
+<pre><code>SELECT *
+FROM products
+WHERE price BETWEEN 10 AND 25;</code></pre>
+
+
+<h3>12. Sorting Results</h3>
+
+<p>
+ORDER BY controls the order in which records are displayed.
+</p>
+
+<pre><code>SELECT *
+FROM customers
+ORDER BY last_name ASC;</code></pre>
+
+<p>Descending order:</p>
+
+<pre><code>SELECT *
+FROM customers
+ORDER BY last_name DESC;</code></pre>
+
+
+<h3>13. Updating Records</h3>
+
+<p>
+UPDATE changes existing information.
+</p>
+
+<pre><code>UPDATE customers
+SET city = 'Canonsburg'
+WHERE customer_id = 1;</code></pre>
+
+<div class="warning">
+<strong>Warning:</strong> Always be careful when using UPDATE.
+If you forget the WHERE clause, every record in the table could
+be modified.
+</div>
+
+
+<h3>14. Deleting Records</h3>
+
+<pre><code>DELETE FROM customers
+WHERE customer_id = 1;</code></pre>
+
+<div class="warning">
+<strong>Warning:</strong> Running DELETE without a WHERE clause
+can remove every record from the table.
+</div>
+
+
+<h3>15. Aggregate Functions</h3>
+
+<p>
+Aggregate functions perform calculations using multiple records.
+</p>
+
+<h4>COUNT</h4>
+
+<pre><code>SELECT COUNT(*)
+FROM customers;</code></pre>
+
+<h4>AVERAGE</h4>
+
+<pre><code>SELECT AVG(price)
+FROM products;</code></pre>
+
+<h4>SUM</h4>
+
+<pre><code>SELECT SUM(price)
+FROM products;</code></pre>
+
+<h4>MIN and MAX</h4>
+
+<pre><code>SELECT MIN(price), MAX(price)
+FROM products;</code></pre>
+
+
+<h3>16. GROUP BY</h3>
+
+<p>
+GROUP BY allows us to organize records into groups before
+performing calculations.
+</p>
+
+<pre><code>SELECT state, COUNT(*)
+FROM customers
+GROUP BY state;</code></pre>
+
+<p>
+This query counts how many customers are located in each state.
+</p>
+
+</section>
+
+
+<!-- ====================================================== -->
+<!-- LAB -->
+<!-- ====================================================== -->
+
+<section id="lab">
+
+<h2>Module 4 Lab: Building and Querying a Database</h2>
+
+<div class="assignment">
+
+<h3>Scenario</h3>
+
+<p>
+You have been asked to create a small database for a business
+that needs to track products and customer orders.
+</p>
+
+<h3>Part 1 – Create the Products Table</h3>
+
+<pre><code>CREATE TABLE products (
+    product_id SERIAL PRIMARY KEY,
+    product_name VARCHAR(100) NOT NULL,
+    category VARCHAR(50),
+    price DECIMAL(8,2),
+    quantity INTEGER
+);</code></pre>
+
+
+<h3>Part 2 – Insert Product Data</h3>
+
+<pre><code>INSERT INTO products
+(product_name, category, price, quantity)
+VALUES
+('Wireless Mouse', 'Electronics', 24.99, 20),
+('Keyboard', 'Electronics', 49.99, 15),
+('USB-C Cable', 'Electronics', 12.99, 30),
+('Laptop Stand', 'Office', 39.99, 10),
+('Notebook', 'Office', 5.99, 50),
+('Desk Lamp', 'Office', 29.99, 12),
+('Coffee Mug', 'Kitchen', 14.99, 25),
+('Water Bottle', 'Kitchen', 19.99, 18);</code></pre>
+
+
+<h3>Part 3 – Run Basic Queries</h3>
+
+<p>Display every product:</p>
+
+<pre><code>SELECT *
+FROM products;</code></pre>
+
+<p>Display only product names and prices:</p>
+
+<pre><code>SELECT product_name, price
+FROM products;</code></pre>
+
+
+<h3>Part 4 – Filtering</h3>
+
+<p>Find products costing more than $20:</p>
+
+<pre><code>SELECT *
+FROM products
+WHERE price > 20;</code></pre>
+
+<p>Find Electronics products:</p>
+
+<pre><code>SELECT *
+FROM products
+WHERE category = 'Electronics';</code></pre>
+
+
+<h3>Part 5 – Sorting</h3>
+
+<p>Display products from most expensive to least expensive:</p>
+
+<pre><code>SELECT *
+FROM products
+ORDER BY price DESC;</code></pre>
+
+
+<h3>Part 6 – Aggregate Functions</h3>
+
+<p>Determine the average product price:</p>
+
+<pre><code>SELECT AVG(price)
+FROM products;</code></pre>
+
+<p>Determine the number of products:</p>
+
+<pre><code>SELECT COUNT(*)
+FROM products;</code></pre>
+
+
+<h3>Part 7 – Your Queries</h3>
+
+<p>Create SQL statements that answer each question:</p>
+
+<ol>
+    <li>Which products cost less than $20?</li>
+    <li>Which products have a quantity greater than 20?</li>
+    <li>Which products are in the Office category?</li>
+    <li>What is the most expensive product?</li>
+    <li>What is the least expensive product?</li>
+    <li>How many products exist in each category?</li>
+    <li>What is the total quantity of all products?</li>
+</ol>
+
+
+<h3>Lab Submission</h3>
+
+<p>Create a file named:</p>
+
+<pre><code>module4_lab.sql</code></pre>
+
+<p>
+Your file should contain all CREATE TABLE statements,
+INSERT statements, and SELECT queries completed during the lab.
+</p>
+
+</div>
+
+</section>
+
+
+<!-- ====================================================== -->
+<!-- HOMEWORK -->
+<!-- ====================================================== -->
+
+<section id="homework">
+
+<h2>Module 4 Homework Assignment</h2>
+
+<div class="assignment">
+
+<h3>Customer Order Database</h3>
+
+<p>
+For this assignment, you will create a small relational database
+for a company that tracks customers and their orders.
+</p>
+
+
+<h3>Part 1 – Create the Customer Table</h3>
+
+<p>Create a table named <strong>customers</strong> containing:</p>
+
+<ul>
+    <li>customer_id – Primary Key</li>
+    <li>first_name</li>
+    <li>last_name</li>
+    <li>email</li>
+    <li>city</li>
+    <li>state</li>
+</ul>
+
+
+<h3>Part 2 – Create the Orders Table</h3>
+
+<p>Create a table named <strong>orders</strong> containing:</p>
+
+<ul>
+    <li>order_id – Primary Key</li>
+    <li>customer_id – Foreign Key</li>
+    <li>order_date</li>
+    <li>order_total</li>
+</ul>
+
+<p>
+The customer_id column must reference the customer_id column
+in the customers table.
+</p>
+
+
+<h3>Part 3 – Insert Data</h3>
+
+<p>Add at least:</p>
+
+<ul>
+    <li>10 customers</li>
+    <li>15 orders</li>
+</ul>
+
+<p>
+Some customers should have multiple orders so that the database
+contains realistic relationships.
+</p>
+
+
+<h3>Part 4 – Write Queries</h3>
+
+<p>Create SQL queries that answer the following questions:</p>
+
+<ol>
+    <li>Display every customer.</li>
+
+    <li>
+        Display only the first name, last name, and email
+        for every customer.
+    </li>
+
+    <li>
+        Display customers who live in Pennsylvania.
+    </li>
+
+    <li>
+        Display customers alphabetically by last name.
+    </li>
+
+    <li>
+        Display orders greater than $100.
+    </li>
+
+    <li>
+        Display orders between $50 and $200.
+    </li>
+
+    <li>
+        Determine the total number of customers.
+    </li>
+
+    <li>
+        Determine the average order total.
+    </li>
+
+    <li>
+        Determine the largest order.
+    </li>
+
+    <li>
+        Determine the smallest order.
+    </li>
+
+    <li>
+        Determine the total dollar amount of all orders.
+    </li>
+
+    <li>
+        Count how many customers are located in each state.
+    </li>
+</ol>
+
+
+<h3>Part 5 – Challenge Query</h3>
+
+<p>
+Create a query that displays the number of orders placed by
+each customer.
+</p>
+
+<div class="note">
+<strong>Hint:</strong> Completing this query may require concepts
+involving relationships between tables. Try to solve the problem
+using what you currently know. We will explore more advanced
+multi-table queries and JOIN operations in greater detail later
+in the course.
+</div>
+
+
+<h3>Homework Submission</h3>
+
+<p>Submit one SQL file named:</p>
+
+<pre><code>module4_homework.sql</code></pre>
+
+<p>Your SQL file should contain:</p>
+
+<ul>
+    <li>CREATE TABLE statements</li>
+    <li>Primary and foreign key definitions</li>
+    <li>INSERT statements</li>
+    <li>All required SELECT queries</li>
+    <li>Your challenge query attempt</li>
+</ul>
+
+
+<h3>Grading</h3>
+
+<table>
+
+<tr>
+    <th>Requirement</th>
+    <th>Points</th>
+</tr>
+
+<tr>
+    <td>Correct table creation</td>
+    <td>20</td>
+</tr>
+
+<tr>
+    <td>Primary and foreign keys</td>
+    <td>15</td>
+</tr>
+
+<tr>
+    <td>Required INSERT statements</td>
+    <td>15</td>
+</tr>
+
+<tr>
+    <td>SQL queries</td>
+    <td>35</td>
+</tr>
+
+<tr>
+    <td>Challenge query</td>
+    <td>10</td>
+</tr>
+
+<tr>
+    <td>Organization / SQL formatting</td>
+    <td>5</td>
+</tr>
+
+<tr>
+    <th>Total</th>
+    <th>100</th>
+</tr>
+
+</table>
+
+</div>
+
+</section>
+
+</main>
+
+<footer>
+    <p>CMPS 160 – Databases | Module 4</p>
+</footer>
+
+</body>
+</html>
