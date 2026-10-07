@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CMPS 160 - Module 5: Querying Data with SQL</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            background-color: #f4f6f8;
+            color: #333;
+        }
+
+        header {
+            background-color: #003b5c;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        header p {
+            margin-top: 8px;
+            font-size: 1.1em;
+        }
+
+        nav {
+            background-color: #222;
+            text-align: center;
+            padding: 12px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        section {
+            background-color: white;
+            margin-bottom: 25px;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            color: #003b5c;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            color: #005f85;
+            margin-top: 25px;
+        }
+
+        code {
+            background-color: #eee;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        pre {
+            background-color: #1e1e1e;
+            color: #f8f8f2;
+            padding: 15px;
+            overflow-x: auto;
+            border-radius: 6px;
+        }
+
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        .objective {
+            background-color: #eef7fb;
+            border-left: 5px solid #0077a8;
+        }
+
+        .lab {
+            background-color: #f7fbf4;
+            border-left: 5px solid #4c8c2b;
+        }
+
+        .homework {
+            background-color: #fff8e6;
+            border-left: 5px solid #e0a000;
+        }
+
+        .note {
+            background-color: #f3f0ff;
+            border-left: 5px solid #6c4fc3;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #003b5c;
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            background-color: #003b5c;
+            color: white;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>CMPS 160 - Databases</h1>
+    <p>Module 5: Querying Data with SQL</p>
+</header>
+
+<nav>
+    <a href="#overview">Overview</a>
+    <a href="#objectives">Objectives</a>
+    <a href="#resources">Resources</a>
+    <a href="#lecture">Lecture</a>
+    <a href="#lab">Lab</a>
+    <a href="#homework">Homework</a>
+</nav>
+
+<main>
+
+    <!-- MODULE OVERVIEW -->
+
+    <section id="overview">
+        <h2>Module 5 Overview</h2>
+
+        <p>
+            In the previous modules, we focused on designing relational databases,
+            creating tables, defining primary and foreign keys, and inserting data
+            into PostgreSQL.
+        </p>
+
+        <p>
+            This module shifts our focus from <strong>building databases</strong>
+            to <strong>retrieving information from them</strong>.
+        </p>
+
+        <p>
+            You will learn how to use the SQL
+            <code>SELECT</code> statement to retrieve information, filter records,
+            sort results, search for patterns, and combine information stored
+            across multiple tables.
+        </p>
+
+        <p>
+            These skills form the foundation for database reporting, analytics,
+            web applications, business intelligence systems, and virtually every
+            application that interacts with a relational database.
+        </p>
+    </section>
+
+
+    <!-- LEARNING OBJECTIVES -->
+
+    <section id="objectives" class="objective">
+
+        <h2>Learning Objectives</h2>
+
+        <p>By the end of this module, students should be able to:</p>
+
+        <ul>
+            <li>Explain the purpose of the SQL <code>SELECT</code> statement.</li>
+            <li>Retrieve specific columns from a PostgreSQL table.</li>
+            <li>Filter database records using the <code>WHERE</code> clause.</li>
+            <li>Use comparison and logical operators in SQL queries.</li>
+            <li>Use <code>BETWEEN</code>, <code>IN</code>, and <code>LIKE</code>.</li>
+            <li>Identify and query NULL values.</li>
+            <li>Sort query results using <code>ORDER BY</code>.</li>
+            <li>Remove duplicate results using <code>DISTINCT</code>.</li>
+            <li>Limit the number of returned rows using <code>LIMIT</code>.</li>
+            <li>Explain why relational databases divide information across tables.</li>
+            <li>Combine related tables using an <code>INNER JOIN</code>.</li>
+            <li>Use primary-key and foreign-key relationships when constructing queries.</li>
+            <li>Use table aliases to make complex SQL queries easier to read.</li>
+        </ul>
+
+    </section>
+
+
+    <!-- LEARNING RESOURCES -->
+
+    <section id="resources">
+
+        <h2>Learning Resources</h2>
+
+        <p>
+            Use the following resources to supplement the lecture and laboratory
+            activities for this module.
+        </p>
+
+        <h3>PostgreSQL Documentation</h3>
+
+        <ul>
+            <li>
+                PostgreSQL SELECT Documentation:
+                <a href="https://www.postgresql.org/docs/current/sql-select.html"
+                   target="_blank">
+                    PostgreSQL SELECT
+                </a>
+            </li>
+
+            <li>
+                PostgreSQL Queries Documentation:
+                <a href="https://www.postgresql.org/docs/current/queries.html"
+                   target="_blank">
+                    PostgreSQL Queries
+                </a>
+            </li>
+
+            <li>
+                PostgreSQL Table Expressions and JOINs:
+                <a href="https://www.postgresql.org/docs/current/queries-table-expressions.html"
+                   target="_blank">
+                    PostgreSQL Table Expressions
+                </a>
+            </li>
+        </ul>
+
+        <h3>Additional SQL Tutorials</h3>
+
+        <ul>
+            <li>
+                <a href="https://www.w3schools.com/sql/sql_select.asp"
+                   target="_blank">
+                    W3Schools SQL SELECT
+                </a>
+            </li>
+
+            <li>
+                <a href="https://www.w3schools.com/sql/sql_where.asp"
+                   target="_blank">
+                    W3Schools SQL WHERE
+                </a>
+            </li>
+
+            <li>
+                <a href="https://www.w3schools.com/sql/sql_join.asp"
+                   target="_blank">
+                    W3Schools SQL JOIN
+                </a>
+            </li>
+        </ul>
+
+        <div class="note">
+            <strong>Recommendation:</strong>
+            Practice the examples in this module directly in PostgreSQL or
+            pgAdmin. SQL becomes much easier to understand when you actually
+            execute the queries and examine the results.
+        </div>
+
+    </section>
+
+
+    <!-- LECTURE -->
+
+    <section id="lecture">
+
+        <h2>Lecture: Querying Data with SQL</h2>
+
+        <h3>1. The SELECT Statement</h3>
+
+        <p>
+            The <code>SELECT</code> statement retrieves information stored
+            inside a database table.
+        </p>
+
+        <p>The most basic query is:</p>
+
+<pre><code>SELECT *
+FROM customers;</code></pre>
+
+        <p>
+            The asterisk (<code>*</code>) means return all columns from the table.
+        </p>
+
+        <p>
+            In many situations, however, we only need certain columns.
+        </p>
+
+<pre><code>SELECT first_name, last_name, email
+FROM customers;</code></pre>
+
+
+        <h3>2. Column Aliases</h3>
+
+        <p>
+            The <code>AS</code> keyword allows us to provide a temporary name
+            for a column in the query results.
+        </p>
+
+<pre><code>SELECT
+    first_name AS "First Name",
+    last_name AS "Last Name"
+FROM customers;</code></pre>
+
+
+        <h3>3. Filtering Data with WHERE</h3>
+
+        <p>
+            The <code>WHERE</code> clause allows us to return only records that
+            meet a specific condition.
+        </p>
+
+<pre><code>SELECT *
+FROM products
+WHERE price &gt; 25;</code></pre>
+
+        <p>Common comparison operators include:</p>
+
+        <table>
+            <tr>
+                <th>Operator</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>=</td>
+                <td>Equal</td>
+            </tr>
+            <tr>
+                <td>&lt;&gt;</td>
+                <td>Not equal</td>
+            </tr>
+            <tr>
+                <td>&gt;</td>
+                <td>Greater than</td>
+            </tr>
+            <tr>
+                <td>&lt;</td>
+                <td>Less than</td>
+            </tr>
+            <tr>
+                <td>&gt;=</td>
+                <td>Greater than or equal</td>
+            </tr>
+            <tr>
+                <td>&lt;=</td>
+                <td>Less than or equal</td>
+            </tr>
+        </table>
+
+
+        <h3>4. AND, OR, and NOT</h3>
+
+        <p>
+            Multiple conditions can be combined using logical operators.
+        </p>
+
+<pre><code>SELECT *
+FROM products
+WHERE price &gt; 20
+AND category = 'Electronics';</code></pre>
+
+<pre><code>SELECT *
+FROM customers
+WHERE state = 'PA'
+OR state = 'OH';</code></pre>
+
+
+        <h3>5. BETWEEN</h3>
+
+        <p>
+            <code>BETWEEN</code> searches for values within a range.
+        </p>
+
+<pre><code>SELECT *
+FROM products
+WHERE price BETWEEN 25 AND 100;</code></pre>
+
+
+        <h3>6. IN</h3>
+
+        <p>
+            <code>IN</code> allows us to compare a value against multiple
+            possible values.
+        </p>
+
+<pre><code>SELECT *
+FROM customers
+WHERE state IN ('PA', 'OH', 'WV');</code></pre>
+
+
+        <h3>7. Searching with LIKE</h3>
+
+        <p>
+            The <code>LIKE</code> operator allows us to search for patterns
+            inside text.
+        </p>
+
+<pre><code>SELECT *
+FROM customers
+WHERE last_name LIKE 'S%';</code></pre>
+
+        <p>
+            The percent sign (<code>%</code>) represents zero or more characters.
+        </p>
+
+<pre><code>SELECT *
+FROM customers
+WHERE email LIKE '%gmail.com';</code></pre>
+
+
+        <h3>8. Working with NULL</h3>
+
+        <p>
+            NULL represents a missing or unknown value.
+        </p>
+
+        <p>
+            We do not test NULL values using the normal equality operator.
+        </p>
+
+<pre><code>SELECT *
+FROM customers
+WHERE phone IS NULL;</code></pre>
+
+<pre><code>SELECT *
+FROM customers
+WHERE phone IS NOT NULL;</code></pre>
+
+
+        <h3>9. Sorting Results</h3>
+
+        <p>
+            The <code>ORDER BY</code> clause controls how query results
+            are sorted.
+        </p>
+
+<pre><code>SELECT *
+FROM products
+ORDER BY price ASC;</code></pre>
+
+        <p>Descending order:</p>
+
+<pre><code>SELECT *
+FROM products
+ORDER BY price DESC;</code></pre>
+
+
+        <h3>10. DISTINCT</h3>
+
+        <p>
+            <code>DISTINCT</code> removes duplicate values from query results.
+        </p>
+
+<pre><code>SELECT DISTINCT state
+FROM customers;</code></pre>
+
+
+        <h3>11. LIMIT</h3>
+
+        <p>
+            PostgreSQL's <code>LIMIT</code> clause controls the number of
+            rows returned.
+        </p>
+
+<pre><code>SELECT *
+FROM products
+ORDER BY price DESC
+LIMIT 5;</code></pre>
+
+        <p>
+            This query returns the five most expensive products.
+        </p>
+
+
+        <h3>12. Why Do We Need JOINs?</h3>
+
+        <p>
+            Relational databases intentionally divide information into
+            multiple tables. This prevents unnecessary duplication and
+            improves data integrity.
+        </p>
+
+        <p>
+            Consider the following tables:
+        </p>
+
+        <p><strong>customers</strong></p>
+
+<pre><code>customer_id
+first_name
+last_name
+email</code></pre>
+
+        <p><strong>orders</strong></p>
+
+<pre><code>order_id
+customer_id
+order_date
+total</code></pre>
+
+        <p>
+            The <code>customer_id</code> column creates the relationship
+            between these tables.
+        </p>
+
+
+        <h3>13. INNER JOIN</h3>
+
+        <p>
+            An <code>INNER JOIN</code> returns records where matching values
+            exist in both tables.
+        </p>
+
+<pre><code>SELECT
+    customers.first_name,
+    customers.last_name,
+    orders.order_id,
+    orders.order_date
+FROM customers
+INNER JOIN orders
+    ON customers.customer_id = orders.customer_id;</code></pre>
+
+
+        <h3>14. Table Aliases</h3>
+
+        <p>
+            Table aliases make JOIN queries shorter and easier to read.
+        </p>
+
+<pre><code>SELECT
+    c.first_name,
+    c.last_name,
+    o.order_id,
+    o.order_date
+FROM customers c
+INNER JOIN orders o
+    ON c.customer_id = o.customer_id;</code></pre>
+
+
+        <h3>15. Joining Multiple Tables</h3>
+
+        <p>
+            Queries can combine information from more than two tables.
+        </p>
+
+<pre><code>SELECT
+    c.first_name,
+    c.last_name,
+    o.order_id,
+    p.product_name,
+    oi.quantity
+FROM customers c
+INNER JOIN orders o
+    ON c.customer_id = o.customer_id
+INNER JOIN order_items oi
+    ON o.order_id = oi.order_id
+INNER JOIN products p
+    ON oi.product_id = p.product_id;</code></pre>
+
+        <p>
+            This query demonstrates the real power of relational databases.
+            Information stored across four separate tables can be combined
+            into one meaningful result.
+        </p>
+
+    </section>
+
+
+    <!-- LAB -->
+
+    <section id="lab" class="lab">
+
+        <h2>Module 5 Lab: Querying Your PostgreSQL Database</h2>
+
+        <h3>Purpose</h3>
+
+        <p>
+            The purpose of this lab is to practice retrieving information
+            from the PostgreSQL database you created in previous modules.
+        </p>
+
+        <h3>Instructions</h3>
+
+        <p>
+            Open pgAdmin and connect to your database. Use the Query Tool
+            to complete the following exercises.
+        </p>
+
+        <ol>
+            <li>
+                Write a query that displays every row and every column
+                from one of your tables.
+            </li>
+
+            <li>
+                Modify the query so that it displays only three columns.
+            </li>
+
+            <li>
+                Use <code>AS</code> to create readable aliases for at least
+                two columns.
+            </li>
+
+            <li>
+                Write a query using <code>WHERE</code> to return only
+                records matching a specific condition.
+            </li>
+
+            <li>
+                Write a query containing two conditions connected with
+                <code>AND</code>.
+            </li>
+
+            <li>
+                Write a query using <code>OR</code>.
+            </li>
+
+            <li>
+                Write a query using <code>BETWEEN</code>.
+            </li>
+
+            <li>
+                Write a query using <code>IN</code>.
+            </li>
+
+            <li>
+                Write a query using <code>LIKE</code> and the
+                <code>%</code> wildcard.
+            </li>
+
+            <li>
+                Write a query using either
+                <code>IS NULL</code> or <code>IS NOT NULL</code>.
+            </li>
+
+            <li>
+                Sort a query using <code>ORDER BY</code>.
+            </li>
+
+            <li>
+                Use <code>DISTINCT</code> to display unique values
+                from one column.
+            </li>
+
+            <li>
+                Write a query using <code>LIMIT</code>.
+            </li>
+
+            <li>
+                Write an <code>INNER JOIN</code> that combines information
+                from two related tables.
+            </li>
+
+            <li>
+                Write a query that joins at least three related tables.
+            </li>
+        </ol>
+
+        <h3>Lab Submission</h3>
+
+        <p>
+            Create a file named:
+        </p>
+
+<pre><code>module5_lab.sql</code></pre>
+
+        <p>
+            Place all 15 SQL queries in the file. Number each query using
+            SQL comments.
+        </p>
+
+<pre><code>-- Query 1
+SELECT * FROM customers;
+
+-- Query 2
+SELECT first_name, last_name, email
+FROM customers;</code></pre>
+
+        <p>
+            Test every query before submitting your file. Your SQL file
+            should execute without syntax errors.
+        </p>
+
+    </section>
+
+
+    <!-- HOMEWORK -->
+
+    <section id="homework" class="homework">
+
+        <h2>Module 5 Homework: SQL Query Challenge</h2>
+
+        <h3>Scenario</h3>
+
+        <p>
+            You have been asked to create several reports for a small
+            online store. The company's PostgreSQL database contains
+            information about customers, products, orders, and the
+            products contained within each order.
+        </p>
+
+        <p>The database contains the following tables:</p>
+
+<pre><code>customers
+---------
+customer_id
+first_name
+last_name
+email
+city
+state
+
+
+products
+--------
+product_id
+product_name
+category
+price
+
+
+orders
+------
+order_id
+customer_id
+order_date
+status
+
+
+order_items
+-----------
+order_item_id
+order_id
+product_id
+quantity</code></pre>
+
+
+        <h3>Your Assignment</h3>
+
+        <p>
+            Write SQL queries that answer each of the following questions.
+        </p>
+
+        <ol>
+            <li>Display every customer.</li>
+
+            <li>
+                Display only the customer's first name, last name,
+                and email address.
+            </li>
+
+            <li>
+                Display all customers who live in Pennsylvania.
+            </li>
+
+            <li>
+                Display customers who live in Pennsylvania, Ohio,
+                or West Virginia.
+            </li>
+
+            <li>
+                Display products costing more than $50.
+            </li>
+
+            <li>
+                Display products costing between $25 and $100.
+            </li>
+
+            <li>
+                Display all products in a category of your choice.
+            </li>
+
+            <li>
+                Find customers whose last name begins with the
+                letter <strong>S</strong>.
+            </li>
+
+            <li>
+                Display products from least expensive to most expensive.
+            </li>
+
+            <li>
+                Display the five most expensive products.
+            </li>
+
+            <li>
+                Display a list of the unique states represented
+                in the customer table.
+            </li>
+
+            <li>
+                Join <code>customers</code> and <code>orders</code>
+                and display the customer's name, order ID,
+                order date, and order status.
+            </li>
+
+            <li>
+                Display all orders with the products contained
+                in each order.
+            </li>
+
+            <li>
+                Display customer names together with the products
+                they purchased.
+            </li>
+
+            <li>
+                Create one additional useful business query of your own.
+                Include a SQL comment explaining what business question
+                the query answers.
+            </li>
+        </ol>
+
+
+        <h3>Submission Requirements</h3>
+
+        <p>Create a SQL file named:</p>
+
+<pre><code>module5_homework.sql</code></pre>
+
+        <p>
+            Your file should contain all 15 queries. Clearly identify
+            each query using SQL comments.
+        </p>
+
+<pre><code>-- Question 1
+SELECT *
+FROM customers;
+
+-- Question 2
+SELECT first_name, last_name, email
+FROM customers;</code></pre>
+
+        <p>
+            Before submitting your assignment, execute each query in
+            PostgreSQL to verify that it works correctly.
+        </p>
+
+        <h3>Grading</h3>
+
+        <table>
+            <tr>
+                <th>Criteria</th>
+                <th>Points</th>
+            </tr>
+
+            <tr>
+                <td>Basic SELECT and column queries</td>
+                <td>20</td>
+            </tr>
+
+            <tr>
+                <td>Filtering and conditional queries</td>
+                <td>25</td>
+            </tr>
+
+            <tr>
+                <td>Sorting, DISTINCT, and LIMIT</td>
+                <td>15</td>
+            </tr>
+
+            <tr>
+                <td>JOIN queries</td>
+                <td>30</td>
+            </tr>
+
+            <tr>
+                <td>Formatting, comments, and original business query</td>
+                <td>10</td>
+            </tr>
+
+            <tr>
+                <th>Total</th>
+                <th>100</th>
+            </tr>
+        </table>
+
+    </section>
+
+</main>
+
+
+<footer>
+    <p>
+        CMPS 160 - Databases | Module 5 - Querying Data with SQL
+    </p>
+</footer>
+
+</body>
+</html>
