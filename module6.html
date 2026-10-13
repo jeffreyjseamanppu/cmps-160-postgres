@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CMPS 160 | Module 5: SQL JOINs and Multi-Table Queries</title>
+<style>
+:root{--navy:#16324f;--blue:#24618a;--light:#edf4f8;--ink:#243240;--line:#d9e3ea}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);line-height:1.65;margin:0;background:#f7f9fb}header{background:var(--navy);color:white;padding:38px max(24px,calc((100vw - 980px)/2))}header h1{margin:0;font-size:2rem}header p{margin:8px 0 0}main{max-width:980px;margin:auto;padding:28px 20px 70px}section{background:white;border:1px solid var(--line);border-radius:10px;padding:24px 30px;margin-bottom:22px}h2{color:var(--navy);border-bottom:2px solid var(--line);padding-bottom:8px;margin-top:0}h3{color:var(--blue)}a{color:#165f91}pre{background:#172b3b;color:#f2f6fb;padding:18px;border-radius:7px;overflow:auto;line-height:1.5}code{font-family:Consolas,Monaco,monospace}li{margin-bottom:7px}.note{background:var(--light);border-left:4px solid var(--blue);padding:13px 17px;margin:15px 0}.points{font-weight:bold;color:#145a7a}table{border-collapse:collapse;width:100%;margin:14px 0}th,td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:var(--light)}footer{text-align:center;color:#5a6b78;font-size:.9rem}@media(max-width:650px){section{padding:20px 16px}header{padding:28px 20px}header h1{font-size:1.55rem}}
+</style>
+</head>
+<body>
+<header><h1>Module 5: SQL JOINs and Multi-Table Queries</h1><p>CMPS 160 – Databases | PostgreSQL and pgAdmin</p></header>
+<main>
+<section><h2>Module Overview</h2><p>Relational databases store related information across multiple tables to reduce duplication and maintain data integrity. In this module, you will learn how to retrieve meaningful information from those tables using SQL JOIN operations. You will practice combining student, course, and enrollment data and interpreting the differences among common JOIN types.</p><div class="note"><strong>Module deliverables:</strong> Complete the hands-on lab, submit the 100-point assignment, and participate in the 50-point discussion.</div></section>
+<section><h2>1. Learning Objectives</h2><p>By the end of this module, you should be able to:</p><ol><li>Explain why relational databases separate data into related tables.</li><li>Identify primary keys and foreign keys used to connect tables.</li><li>Write INNER JOIN queries to retrieve matching records.</li><li>Use LEFT JOIN, RIGHT JOIN, and FULL OUTER JOIN to include unmatched records.</li><li>Combine three or more tables in a single SQL query.</li><li>Use table aliases, filtering, sorting, and aggregate functions with JOINs.</li><li>Interpret query results and select the appropriate JOIN type for a business question.</li></ol></section>
+<section><h2>2. Learning Resources</h2><ul><li><a href="https://www.postgresql.org/docs/current/tutorial-join.html" target="_blank" rel="noopener">PostgreSQL Documentation: Joins Between Tables</a> – Official introductory JOIN tutorial.</li><li><a href="https://www.postgresql.org/docs/current/queries-table-expressions.html" target="_blank" rel="noopener">PostgreSQL Documentation: Table Expressions</a> – JOIN syntax and behavior in greater detail.</li><li><a href="https://www.postgresql.org/docs/current/tutorial-agg.html" target="_blank" rel="noopener">PostgreSQL Documentation: Aggregate Functions</a> – Review COUNT, GROUP BY, and related operations.</li><li><a href="https://www.pgadmin.org/docs/" target="_blank" rel="noopener">pgAdmin Documentation</a> – Query Tool and database management reference.</li><li>Review your notes and exercises from Module 4, especially SELECT, WHERE, ORDER BY, and GROUP BY.</li></ul><div class="note"><strong>Preparation:</strong> Ensure PostgreSQL and pgAdmin are installed and that you can open the Query Tool.</div></section>
+<section><h2>Video Learning: PostgreSQL and pgAdmin 4</h2><p>Watch these demonstrations before beginning the hands-on lab. Pause each video and reproduce the JOIN queries using your own PostgreSQL database in pgAdmin 4.</p><h3>1. SQL JOINs Explained with Examples in pgAdmin</h3><p>Demonstrates INNER, LEFT, RIGHT, and FULL OUTER JOINs using PostgreSQL and pgAdmin.</p><div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden"><iframe src="https://www.youtube-nocookie.com/embed/Kg7yvAkWu7k" title="SQL JOINs Explained with Examples in pgAdmin" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe></div><p><a href="https://www.youtube.com/watch?v=Kg7yvAkWu7k" target="_blank" rel="noopener">Open JOINs video on YouTube</a></p><h3>2. PostgreSQL JOINs: Guided Video and Practice</h3><p>Follow a bookstore example in PostgreSQL and pgAdmin. The page includes a video, explanations, and timestamps for each JOIN type.</p><p><a href="https://www.learnbycheating.com/subjects/database/joins" target="_blank" rel="noopener">Watch the PostgreSQL JOINs tutorial</a></p><h3>3. pgAdmin Query Tool: Official Video Library</h3><p>Review the official <em>pgAdmin: Query Tool (part 1)</em> and <em>Data Output tab of Query Tool</em> videos to learn how to run SQL and interpret results.</p><p><a href="https://www.pgadmin.org/videos/" target="_blank" rel="noopener">View official pgAdmin instructional videos</a></p><div class="note"><strong>Video checkpoint:</strong> In pgAdmin, run one INNER JOIN and one LEFT JOIN. Explain why the result sets differ. If embedded video playback is blocked by your browser or LMS, use the direct links.</div></section>
+<section><h2>3. Lecture: SQL JOINs</h2>
+<h3>3.1 Why JOINs Matter</h3><p>Imagine a college database containing students and courses. Storing each student's name and each course's title repeatedly in one large table creates redundant data. Instead, a normalized design stores students, courses, and enrollments separately. JOINs reconnect that information when needed.</p>
+<h3>3.2 Understanding Table Relationships</h3><p>The <code>students</code> table uses <code>student_id</code> as its primary key. The <code>courses</code> table uses <code>course_id</code>. The <code>enrollments</code> table uses foreign keys to connect a student to a course. This is a many-to-many relationship implemented through a junction table.</p>
+<h3>3.3 Create the Practice Database Tables</h3><p>Open pgAdmin's Query Tool in a practice database and run the following SQL. The <code>DROP TABLE</code> commands reset only these three named practice tables; do not run them in a database containing work you need to preserve.</p>
+<pre><code>DROP TABLE IF EXISTS enrollments;
+DROP TABLE IF EXISTS courses;
+DROP TABLE IF EXISTS students;
+
+CREATE TABLE students (
+    student_id INT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE courses (
+    course_id INT PRIMARY KEY,
+    course_name VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE enrollments (
+    enrollment_id INT PRIMARY KEY,
+    student_id INT REFERENCES students(student_id),
+    course_id INT REFERENCES courses(course_id),
+    grade INT CHECK (grade BETWEEN 0 AND 100)
+);
+
+INSERT INTO students VALUES
+(1, 'Alex', 'Rivera'),
+(2, 'Jordan', 'Lee'),
+(3, 'Taylor', 'Morgan'),
+(4, 'Casey', 'Brooks');
+
+INSERT INTO courses VALUES
+(101, 'Databases'),
+(102, 'Web Development'),
+(103, 'Cybersecurity'),
+(104, 'Mobile Programming');
+
+INSERT INTO enrollments VALUES
+(1, 1, 101, 92),
+(2, 1, 102, 85),
+(3, 2, 101, 88),
+(4, 3, 103, 95);</code></pre>
+<p>In this dataset, Casey has no enrollments, and Mobile Programming has no enrolled students. These intentional gaps help demonstrate outer JOINs.</p>
+<h3>3.4 INNER JOIN</h3><p>An INNER JOIN returns only rows with matching keys in both tables. Here, it shows students who have enrollment records.</p>
+<pre><code>SELECT s.first_name, s.last_name, e.course_id, e.grade
+FROM students AS s
+INNER JOIN enrollments AS e
+    ON s.student_id = e.student_id
+ORDER BY s.student_id, e.course_id;</code></pre>
+<p><strong>Expected result:</strong> Four rows: Alex appears twice, Jordan once, and Taylor once. Casey does not appear because there is no matching enrollment.</p>
+<h3>3.5 LEFT JOIN</h3><p>A LEFT JOIN retains every row from the table on the left, even when no match exists on the right. Missing right-side values appear as <code>NULL</code>.</p>
+<pre><code>SELECT s.first_name, s.last_name, e.course_id
+FROM students AS s
+LEFT JOIN enrollments AS e
+    ON s.student_id = e.student_id
+ORDER BY s.student_id, e.course_id;</code></pre>
+<p><strong>Expected result:</strong> Five rows, including Casey with a NULL course_id.</p>
+<h3>3.6 RIGHT JOIN</h3><p>A RIGHT JOIN retains every row from the table on the right. In this example, every course appears, even if no enrollment exists.</p>
+<pre><code>SELECT c.course_name, e.student_id
+FROM enrollments AS e
+RIGHT JOIN courses AS c
+    ON e.course_id = c.course_id
+ORDER BY c.course_id, e.student_id;</code></pre>
+<p><strong>Expected result:</strong> Five rows, including Mobile Programming with a NULL student_id. A RIGHT JOIN can often be rewritten as a LEFT JOIN by reversing table order.</p>
+<h3>3.7 FULL OUTER JOIN</h3><p>A FULL OUTER JOIN includes matched rows plus unmatched rows from either side. It is useful for comparing two sets and identifying missing relationships.</p>
+<pre><code>SELECT s.first_name, e.course_id
+FROM students AS s
+FULL OUTER JOIN enrollments AS e
+    ON s.student_id = e.student_id
+ORDER BY s.first_name NULLS LAST, e.course_id;</code></pre>
+<p><strong>Expected result:</strong> Five rows. Casey is included without a course; this sample contains no enrollment with an unmatched student because the foreign key prevents it.</p>
+<h3>3.8 Joining Three Tables</h3><p>Multiple JOIN clauses allow you to display student names, course titles, and grades in one result.</p>
+<pre><code>SELECT s.first_name, s.last_name,
+       c.course_name, e.grade
+FROM students AS s
+INNER JOIN enrollments AS e
+    ON s.student_id = e.student_id
+INNER JOIN courses AS c
+    ON e.course_id = c.course_id
+ORDER BY s.last_name, c.course_name;</code></pre>
+<h3>3.9 JOINs with Aggregates</h3><p>JOINs can be combined with COUNT and GROUP BY to answer questions such as how many students are enrolled in each course. <code>COUNT(e.enrollment_id)</code> counts matching enrollment rows; unlike <code>COUNT(*)</code>, it returns zero for a course without enrollments.</p>
+<pre><code>SELECT c.course_name,
+       COUNT(e.enrollment_id) AS student_count
+FROM courses AS c
+LEFT JOIN enrollments AS e
+    ON c.course_id = e.course_id
+GROUP BY c.course_id, c.course_name
+ORDER BY c.course_name;</code></pre>
+<p><strong>Expected counts:</strong> Databases = 2, Web Development = 1, Cybersecurity = 1, Mobile Programming = 0.</p>
+<h3>3.10 Common Mistakes to Avoid</h3><ul><li>Omitting the <code>ON</code> condition and unintentionally creating many combinations of rows.</li><li>Joining unrelated columns rather than matching foreign and primary keys.</li><li>Using an INNER JOIN when unmatched records must be included.</li><li>Placing a filter on a right-side column in <code>WHERE</code> after a LEFT JOIN, which can eliminate NULL rows.</li><li>Using unqualified column names when both tables contain the same name.</li></ul>
+</section>
+<section><h2>4. Hands-On Lab: Exploring JOIN Operations</h2><p><strong>Purpose:</strong> Practice writing, running, and interpreting JOIN queries in PostgreSQL.</p><p><strong>Instructions:</strong> Use the three practice tables created in the lecture. Execute each task in pgAdmin and review the output.</p><ol><li>Run an INNER JOIN between <code>students</code> and <code>enrollments</code>. Identify which students appear and which do not.</li><li>Modify the query to use LEFT JOIN. Identify the student with no enrollment.</li><li>Run a RIGHT JOIN to list all courses, including those with no enrollment.</li><li>Run a FULL OUTER JOIN between students and enrollments. Compare its result to the LEFT JOIN.</li><li>Write a three-table INNER JOIN showing each student's full name, course name, and grade.</li><li>Write a LEFT JOIN query that lists all courses and the number of enrolled students, including zero-enrollment courses.</li><li>Add a <code>WHERE</code> condition to the three-table query to show grades of 90 or higher.</li></ol><div class="note"><strong>Lab checkpoint:</strong> Confirm that you can explain why INNER JOIN excludes Casey, why LEFT JOIN includes Casey, and why a course count can be zero. Save your queries for use in the assignment.</div></section>
+<section><h2>5. Assignment: Relational Data Analysis with JOINs <span class="points">(100 Points)</span></h2><p><strong>Scenario:</strong> You have been asked to create a short reporting package for a college registrar. Use the practice database to answer enrollment questions. You may extend the dataset with additional valid rows if you wish, but do not remove the original sample records.</p>
+<h3>Required Tasks</h3><ol><li><strong>INNER JOIN (15 points):</strong> Write a query displaying student first name, last name, course name, and grade for every enrollment. Sort by last name and course name.</li><li><strong>LEFT JOIN (15 points):</strong> List every student, including those not enrolled in a course. Display the course name when available.</li><li><strong>RIGHT JOIN (15 points):</strong> List every course and its enrolled student names, including courses with no students.</li><li><strong>FULL OUTER JOIN (15 points):</strong> Write a query joining students and enrollments, including unmatched rows. Explain in 2–3 sentences how its output compares with the LEFT JOIN for this dataset.</li><li><strong>Three-Table Query (15 points):</strong> Display student full name, course name, and grade for enrollments with a grade of 90 or higher, sorted from highest to lowest grade.</li><li><strong>Aggregate Report (15 points):</strong> List every course with its enrollment count and average grade. Courses with no enrollments must appear with a count of zero; their average may be NULL.</li><li><strong>Interpretation (10 points):</strong> Write 150–200 words explaining when you would use INNER JOIN versus LEFT JOIN and how JOINs support useful reporting in a relational database.</li></ol>
+<h3>Submission Requirements</h3><ul><li>Submit one <strong>.sql</strong> file containing all six queries, clearly labeled with SQL comments.</li><li>Submit one <strong>PDF or Word document</strong> containing screenshots of each query's results and your written explanations.</li><li>Ensure your screenshots show readable column names and results.</li><li>Test every query in PostgreSQL before submitting.</li></ul>
+<h3>Assignment Rubric</h3><table><thead><tr><th>Criterion</th><th>Points</th></tr></thead><tbody><tr><td>INNER JOIN query</td><td>15</td></tr><tr><td>LEFT JOIN query</td><td>15</td></tr><tr><td>RIGHT JOIN query</td><td>15</td></tr><tr><td>FULL OUTER JOIN query and explanation</td><td>15</td></tr><tr><td>Three-table filtered query</td><td>15</td></tr><tr><td>Aggregate report</td><td>15</td></tr><tr><td>Written interpretation</td><td>10</td></tr><tr><th>Total</th><th>100</th></tr></tbody></table><p><strong>Grading:</strong> Each query is evaluated for correct JOIN selection, accurate conditions, required columns, and correct results. Partial credit may be awarded for substantially correct work.</p></section>
+<section><h2>6. Discussion: Choosing the Right JOIN <span class="points">(50 Points)</span></h2><h3>Discussion Prompt</h3><p>A college administrator wants two reports: (1) a list of students who are currently enrolled in at least one course, and (2) a list of <em>all</em> students, including students who have not registered for any courses.</p><p>Which JOIN would you use for each report, and why? Explain what could go wrong if the wrong JOIN type were used. Provide one additional real-world example, such as a business tracking customers and orders or a hospital tracking patients and appointments.</p>
+<h3>Participation Requirements</h3><ol><li><strong>Initial Post – 30 points:</strong> Write 200–250 words answering both reporting questions, explaining your JOIN choices, and providing a real-world example.</li><li><strong>First Peer Response – 10 points:</strong> Respond to one classmate in at least 75 words. Add a meaningful observation, question, or example that extends the discussion.</li><li><strong>Additional Peer Response – 10 points:</strong> Respond to a different classmate in at least 75 words. Compare approaches or explain another situation in which a JOIN type would be useful.</li></ol><p>Responses such as “I agree” or “Great post” without supporting explanation do not satisfy the requirements. Be respectful and use correct database terminology.</p>
+<h3>Discussion Grading Rubric</h3><table><thead><tr><th>Component</th><th>Points</th><th>Expectation</th></tr></thead><tbody><tr><td>Initial discussion post</td><td>30</td><td>Correct JOIN choices (15), explanation of risks and differences (10), relevant example and clarity (5)</td></tr><tr><td>First peer response</td><td>10</td><td>Substantive, relevant engagement with a classmate</td></tr><tr><td>Additional peer response</td><td>10</td><td>Substantive, relevant engagement with a different classmate</td></tr><tr><th>Total</th><th>50</th><th></th></tr></tbody></table></section>
+<section><h2>Module Wrap-Up</h2><p>SQL JOINs transform separate relational tables into useful information. You should now be able to distinguish matching from unmatched records, join multiple tables, and combine JOINs with filtering and aggregation. These skills form the foundation for more advanced database reporting and application development.</p></section>
+<footer>CMPS 160 – Databases | Module 5</footer>
+</main></body></html>
