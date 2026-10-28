@@ -1,0 +1,100 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Module 7 | PostgreSQL</title><style>body{font:16px/1.65 Arial,sans-serif;color:#243247;max-width:980px;margin:auto;padding:28px}h1{color:#123c62}h2{background:#eaf2f8;padding:12px;border-left:5px solid #17699a}h3{color:#17699a}pre{background:#172638;color:#f4f7fa;padding:18px;overflow:auto;border-radius:6px}code{font-family:Consolas,monospace}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccd5df;padding:9px;text-align:left}th{background:#edf3f8}.note{background:#fff6dc;padding:14px;border-left:4px solid #d8a42a}a{color:#075d9a}section{margin-bottom:30px}</style></head><body>
+<h1>Module 7: SQL Subqueries, Views, and Introduction to Stored Procedures</h1><p><strong>Course:</strong> PostgreSQL Database Management | <strong>Platform:</strong> PostgreSQL and pgAdmin 4 | <strong>Duration:</strong> One week</p><p>This module builds on SQL JOINs, aggregate functions, GROUP BY, and HAVING. You will use nested queries to answer more complex business questions, create reusable views, and explore how stored procedures organize database operations.</p>
+<section><h2>1. Learning Objectives</h2><p>By the end of this module, students will be able to:</p><ol><li>Describe subqueries and distinguish scalar, multi-row, and correlated subqueries.</li><li>Construct subqueries with comparison operators, IN, and EXISTS.</li><li>Use nested SELECT statements to solve practical business questions.</li><li>Create, query, replace, and remove PostgreSQL views.</li><li>Explain the benefits and limitations of views, including the difference between regular and materialized views.</li><li>Describe the purpose of stored procedures and execute a simple PostgreSQL procedure using CALL.</li><li>Apply subqueries and views to their semester wine database project.</li></ol></section>
+<section><h2>2. Learning Resources and Videos</h2><h3>Required reading</h3><ul><li><a href="https://www.postgresql.org/docs/current/functions-subquery.html" target="_blank" rel="noopener">PostgreSQL Documentation: Subquery Expressions</a> — focus on EXISTS and IN.</li><li><a href="https://www.postgresql.org/docs/current/sql-createview.html" target="_blank" rel="noopener">PostgreSQL Documentation: CREATE VIEW</a> — view creation and replacement.</li><li><a href="https://www.postgresql.org/docs/current/sql-createprocedure.html" target="_blank" rel="noopener">PostgreSQL Documentation: CREATE PROCEDURE</a> — syntax and execution.</li><li><a href="https://www.postgresql.org/docs/current/sql-call.html" target="_blank" rel="noopener">PostgreSQL Documentation: CALL</a>.</li></ul><h3>Video lessons</h3><ol><li><a href="https://www.youtube.com/watch?v=mXW7JHJM34k&amp;t=11219s" target="_blank" rel="noopener">freeCodeCamp — SQL Subqueries (start at 3:06:59)</a>. Watch the subqueries and nested queries segments through approximately 3:40.</li><li><a href="https://www.youtube.com/watch?v=mXW7JHJM34k&amp;t=29400s" target="_blank" rel="noopener">freeCodeCamp — PostgreSQL joins and subqueries exercises (start at 8:10:00)</a>. Optional applied practice; examples may use different datasets.</li><li><a href="https://www.youtube.com/watch?v=SpfIwlAYaKk" target="_blank" rel="noopener">freeCodeCamp — PostgreSQL Tutorial for Beginners</a>. Optional review of SELECT, IN, aggregation, and GROUP BY.</li></ol><p class="note"><strong>Video note:</strong> Some freeCodeCamp examples use BigQuery instead of PostgreSQL. Complete all lab and assignment work in PostgreSQL using pgAdmin 4; follow PostgreSQL syntax when there are differences.</p></section>
+<section><h2>3. Lecture: Advanced Query Techniques</h2><h3>Part A — What is a subquery?</h3><p>A subquery is a SELECT statement nested inside another SQL statement. The inner query produces a result used by the outer query. For example, to find wines priced above the average wine price:</p><pre><code>SELECT wine_name, price
+FROM wines
+WHERE price &gt; (SELECT AVG(price) FROM wines)
+ORDER BY price DESC;</code></pre><p>The inner SELECT returns a single average price. The outer SELECT filters wines against that value. This is a <strong>scalar subquery</strong>, because the inner query returns one value.</p><h3>Part B — Multi-row subqueries using IN</h3><p>IN tests whether a value is included in a set returned by a subquery. This example finds wines that appear in an order:</p><pre><code>SELECT wine_name
+FROM wines
+WHERE wine_id IN (
+  SELECT wine_id FROM order_items
+);</code></pre><p>Unlike a scalar subquery, the inner query can return multiple rows. EXISTS is often useful when checking for related records:</p><pre><code>SELECT w.wine_name
+FROM wines AS w
+WHERE EXISTS (
+  SELECT 1
+  FROM order_items AS oi
+  WHERE oi.wine_id = w.wine_id
+);</code></pre><h3>Part C — Correlated subqueries</h3><p>A correlated subquery refers to a column from its outer query. The following example identifies wines priced above the average within their own category:</p><pre><code>SELECT w.wine_name, w.category, w.price
+FROM wines AS w
+WHERE w.price &gt; (
+  SELECT AVG(w2.price)
+  FROM wines AS w2
+  WHERE w2.category = w.category
+);</code></pre><p>The category comparison connects the inner query to the current outer row. Explain why this differs from comparing every wine against one overall average.</p><h3>Part D — Views</h3><p>A view is a named, reusable query. A regular PostgreSQL view does not store a separate snapshot of query results; its underlying query is used when the view is referenced.</p><pre><code>CREATE VIEW premium_wines AS
+SELECT wine_id, wine_name, category, price
+FROM wines
+WHERE price &gt;= 22.00;
+
+SELECT * FROM premium_wines
+ORDER BY price DESC;</code></pre><p>Views simplify reporting and reduce repeated SQL. They can also help expose selected columns, but they are not a complete security mechanism by themselves. Permissions and access design still matter.</p><pre><code>CREATE OR REPLACE VIEW premium_wines AS
+SELECT wine_id, wine_name, category, price
+FROM wines
+WHERE price &gt;= 25.00;
+
+DROP VIEW premium_wines;</code></pre><p>For this example, CREATE OR REPLACE VIEW preserves the existing output column names, order, and types. A materialized view differs because it stores query results and requires refreshing to reflect changes.</p><h3>Part E — Introduction to stored procedures</h3><p>Stored procedures group database operations under a callable name. In PostgreSQL, procedures are defined with CREATE PROCEDURE and executed with CALL. This introductory example writes an audit message:</p><pre><code>CREATE TABLE IF NOT EXISTS module7_audit (
+  audit_id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  message text NOT NULL,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE OR REPLACE PROCEDURE log_module7_demo()
+LANGUAGE SQL
+AS $$
+  INSERT INTO module7_audit (message)
+  VALUES ('Module 7 procedure executed');
+$$;
+
+CALL log_module7_demo();
+SELECT * FROM module7_audit;</code></pre><p>Discuss how procedures can help standardize repeatable database actions. Procedures are included as introductory material; the graded assignment emphasizes subqueries and views.</p></section>
+<section><h2>4. Hands-on Lab: Wine Inventory Reporting</h2><p><strong>Estimated time:</strong> 60–90 minutes | <strong>Software:</strong> pgAdmin 4</p><h3>Step 1 — Create a practice database</h3><p>In pgAdmin 4, create a database named <code>module7_wine_lab</code>. Connect to it, open Query Tool, and run the following SQL. Keep this separate from your semester project.</p><pre><code>CREATE TABLE wines (
+  wine_id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  wine_name varchar(80) NOT NULL,
+  category varchar(30) NOT NULL,
+  price numeric(8,2) NOT NULL CHECK (price &gt;= 0)
+);
+
+CREATE TABLE order_items (
+  item_id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  wine_id integer NOT NULL REFERENCES wines(wine_id),
+  quantity integer NOT NULL CHECK (quantity &gt; 0)
+);
+
+INSERT INTO wines (wine_name, category, price) VALUES
+('Old Vine Zinfandel','Dry Red',25.00),
+('Tempranillo','Dry Red',22.00),
+('Syrah','Dry Red',24.00),
+('Sauvignon Blanc','Dry White',20.00),
+('Mango Mayhem','Fruit',20.00),
+('Blackberry','Fruit',18.00);
+
+INSERT INTO order_items (wine_id, quantity) VALUES
+(1,3),(1,2),(2,4),(4,2),(5,6);</code></pre><h3>Step 2 — Run a scalar subquery</h3><pre><code>SELECT wine_name, price
+FROM wines
+WHERE price &gt; (SELECT AVG(price) FROM wines);</code></pre><p>Record the names and prices returned. Explain how the average is calculated.</p><h3>Step 3 — Run an IN subquery</h3><pre><code>SELECT wine_name
+FROM wines
+WHERE wine_id IN (SELECT wine_id FROM order_items);</code></pre><p>Identify which wines have appeared in orders.</p><h3>Step 4 — Run a correlated subquery</h3><pre><code>SELECT w.wine_name, w.category, w.price
+FROM wines w
+WHERE w.price &gt; (
+  SELECT AVG(w2.price)
+  FROM wines w2
+  WHERE w2.category = w.category
+);</code></pre><p>Compare each wine against the average price in its category.</p><h3>Step 5 — Create and query a sales view</h3><pre><code>CREATE VIEW wine_sales_summary AS
+SELECT w.wine_id, w.wine_name,
+       COALESCE(SUM(oi.quantity),0) AS bottles_sold,
+       COALESCE(SUM(oi.quantity * w.price),0) AS revenue
+FROM wines w
+LEFT JOIN order_items oi ON oi.wine_id = w.wine_id
+GROUP BY w.wine_id, w.wine_name;
+
+SELECT * FROM wine_sales_summary
+ORDER BY revenue DESC;</code></pre><p>Explain why LEFT JOIN and COALESCE allow wines without orders to appear with zero sales.</p><h3>Step 6 — Verify that the view reflects new data</h3><pre><code>INSERT INTO order_items (wine_id, quantity)
+VALUES (3,5);
+
+SELECT * FROM wine_sales_summary
+ORDER BY revenue DESC;</code></pre><p>Observe how the results change without recreating the view.</p><h3>Lab check</h3><p>Capture screenshots of the scalar subquery, correlated subquery, and sales view results. Keep these for your assignment or instructor review. You do not need to submit a separate lab unless directed.</p></section>
+<section><h2>5. Module 7 Assignment — Advanced SQL Queries and Views</h2><p><strong>Points:</strong> 100 | <strong>Submission:</strong> One .sql file and one PDF or Word document with labeled screenshots and brief explanations.</p><p>Use the provided practice database or an equivalent database with appropriate relationships. Do not submit screenshots alone: your SQL must be included as editable text in the .sql file.</p><ol><li><strong>Task 1 — Scalar subquery (15 points):</strong> Write a query that displays wines priced above the overall average. Include a short explanation of the inner and outer queries.</li><li><strong>Task 2 — Multi-row subquery (15 points):</strong> Use IN or EXISTS to identify wines with at least one order. Explain why your chosen operator works.</li><li><strong>Task 3 — Correlated subquery (20 points):</strong> Find wines priced above the average of their own category. Explain how the outer query and inner query are connected.</li><li><strong>Task 4 — Create a view (20 points):</strong> Create a view named <code>premium_wines</code> showing wines priced at $22 or more. Query the view and provide results.</li><li><strong>Task 5 — Reporting view (20 points):</strong> Create a view named <code>wine_sales_summary</code> displaying each wine, total bottles sold, and total revenue. Include wines with no orders. Query the view sorted by revenue.</li><li><strong>Task 6 — Reflection (10 points):</strong> In 150–250 words, explain when you would choose a view rather than repeatedly writing the same SQL query. Mention at least one limitation of views.</li></ol><h3>Grading rubric</h3><table><tr><th>Criteria</th><th>Points</th></tr><tr><td>Scalar subquery and explanation</td><td>15</td></tr><tr><td>IN or EXISTS subquery and explanation</td><td>15</td></tr><tr><td>Correlated subquery and explanation</td><td>20</td></tr><tr><td>Premium wines view and results</td><td>20</td></tr><tr><td>Sales summary view and results</td><td>20</td></tr><tr><td>Reflection and clarity</td><td>10</td></tr><tr><th>Total</th><th>100</th></tr></table><p><strong>Submission checklist:</strong> SQL executes without errors; screenshots show actual results; file names include your name and Module 7; all explanations are in your own words.</p></section>
+<section><h2>6. Discussion — Why Use Database Views?</h2><p><strong>Points:</strong> 50</p><p><strong>Prompt:</strong> Imagine you are the database developer for a winery or online retailer. Managers regularly request a report showing top-selling products, revenue by category, and products with no sales. You could write a complex SQL query every time, or create a reusable view.</p><p>Which approach would you recommend, and why? In your response, explain how views improve consistency and maintainability, identify at least one limitation or risk, and describe a situation where a subquery would still be useful. Include a concrete business example.</p><p><strong>Participation:</strong> Post an initial response of at least 200 words. Reply thoughtfully to at least two classmates (at least 75 words each). Go beyond simple agreement by adding an example, asking a substantive question, or offering an alternative approach.</p><h3>Discussion rubric</h3><table><tr><th>Criteria</th><th>Points</th></tr><tr><td>Initial post demonstrates understanding of views and subqueries</td><td>20</td></tr><tr><td>Relevant real-world example and consideration of tradeoffs</td><td>10</td></tr><tr><td>Two meaningful peer replies</td><td>15</td></tr><tr><td>Clarity, professionalism, and completeness</td><td>5</td></tr><tr><th>Total</th><th>50</th></tr></table></section>
+<section><h2>7. Semester Project Connection</h2><p>Continue developing your semester wine database project. This week, identify two meaningful business questions that could be answered with subqueries and one recurring report that would benefit from a view. Examples include wines priced above their category average, products without sales, and a reusable sales-by-wine summary.</p><p><strong>Project milestone:</strong> Add at least one subquery and one view to your project SQL script. Keep screenshots of successful execution for your final presentation. If your schema uses different table or column names, adapt the examples to your design.</p></section>
+<section><h2>8. Weekly Completion Checklist</h2><ul><li>Read the PostgreSQL documentation and watch the assigned video segments.</li><li>Review the lecture and execute its sample SQL.</li><li>Complete the pgAdmin 4 lab.</li><li>Submit the 100-point assignment.</li><li>Post the 50-point discussion and respond to two classmates.</li><li>Update the semester wine database project.</li></ul><p><strong>Reminder:</strong> All SQL examples are intended for PostgreSQL. Use pgAdmin 4 to test your statements and verify results before submitting.</p></section>
+</body></html>
