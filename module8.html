@@ -1,0 +1,278 @@
+
+<div style="font-family: Arial, sans-serif; line-height: 1.7; color: #252525; max-width: 1000px; margin: auto;">
+
+  <h1 style="color: #17365d; border-bottom: 3px solid #17365d; padding-bottom: 12px;">
+    Module 8: Advanced SQL – Views, CTEs, and Window Functions
+  </h1>
+
+  <p>
+    Welcome to Module 8! Last week, we explored SQL subqueries and how
+    nested queries can retrieve and filter information from a database.
+    This week, we will expand those skills by learning three powerful
+    PostgreSQL features: Views, Common Table Expressions (CTEs), and
+    Window Functions.
+  </p>
+
+  <p>
+    These techniques are commonly used in database development,
+    reporting, analytics, and business applications to organize
+    complex SQL statements and extract meaningful information.
+  </p>
+
+  <h2 style="color: #17365d;">Module Learning Objectives</h2>
+  <ul>
+    <li>Explain the purpose of SQL Views and their benefits.</li>
+    <li>Create and query reusable Views in PostgreSQL.</li>
+    <li>Develop Common Table Expressions using the WITH clause.</li>
+    <li>Compare CTEs with traditional SQL subqueries.</li>
+    <li>Use ROW_NUMBER(), RANK(), and DENSE_RANK().</li>
+    <li>Apply window functions to business reporting and analysis.</li>
+  </ul>
+
+  <hr>
+
+  <h2 style="color: #17365d;">1. Lecture: Advanced SQL Techniques</h2>
+
+  <h3 style="color: #27609a;">Part 1: SQL Views</h3>
+  <p>
+    A View is a named SQL query that can be accessed similarly to
+    a table. Standard PostgreSQL Views do not independently store
+    the query results. Instead, PostgreSQL executes the underlying
+    query when the View is accessed.
+  </p>
+
+  <p><strong>Example: Creating a Customer Orders View</strong></p>
+  <pre style="background: #f3f5f7; padding: 15px; overflow-x: auto;"><code>CREATE VIEW customer_orders AS
+SELECT
+    c.customer_id,
+    c.customer_name,
+    o.order_id,
+    o.total_amount
+FROM customers c
+JOIN orders o
+    ON c.customer_id = o.customer_id;</code></pre>
+
+  <p>Query the View:</p>
+  <pre style="background: #f3f5f7; padding: 15px;"><code>SELECT *
+FROM customer_orders
+WHERE total_amount > 100;</code></pre>
+
+  <h3 style="color: #27609a;">Part 2: Common Table Expressions</h3>
+  <p>
+    A Common Table Expression, or CTE, is a temporary named result
+    set defined within a SQL statement using the WITH keyword.
+    CTEs are useful for breaking complex queries into smaller,
+    readable sections.
+  </p>
+
+  <p><strong>Example: Total Spending by Customer</strong></p>
+  <pre style="background: #f3f5f7; padding: 15px; overflow-x: auto;"><code>WITH customer_totals AS (
+    SELECT
+        customer_id,
+        SUM(total_amount) AS total_spent
+    FROM orders
+    GROUP BY customer_id
+)
+SELECT *
+FROM customer_totals
+WHERE total_spent > 500;</code></pre>
+
+  <h3 style="color: #27609a;">Part 3: Window Functions</h3>
+  <p>
+    Window Functions perform calculations across related rows
+    while preserving the individual rows in the query results.
+    Unlike GROUP BY, they do not automatically collapse records
+    into one row per group.
+  </p>
+
+  <p><strong>Example: Ranking Orders by Amount</strong></p>
+  <pre style="background: #f3f5f7; padding: 15px; overflow-x: auto;"><code>SELECT
+    order_id,
+    customer_id,
+    total_amount,
+    RANK() OVER (
+        ORDER BY total_amount DESC
+    ) AS order_rank
+FROM orders;</code></pre>
+
+  <p><strong>Example: Running Total</strong></p>
+  <pre style="background: #f3f5f7; padding: 15px; overflow-x: auto;"><code>SELECT
+    order_id,
+    total_amount,
+    SUM(total_amount) OVER (
+        ORDER BY order_id
+        ROWS BETWEEN UNBOUNDED PRECEDING
+        AND CURRENT ROW
+    ) AS running_total
+FROM orders;</code></pre>
+
+  <hr>
+
+  <h2 style="color: #17365d;">2. Lab: Building Advanced SQL Queries</h2>
+
+  <p>
+    <strong>Objective:</strong> Practice creating Views, CTEs,
+    and Window Functions using PostgreSQL and pgAdmin.
+  </p>
+
+  <h3 style="color: #27609a;">Lab Instructions</h3>
+  <ol>
+    <li>Open pgAdmin and connect to your PostgreSQL database.</li>
+    <li>Create a View combining customer and order information.</li>
+    <li>Write a SELECT statement that filters the View.</li>
+    <li>Create a CTE that calculates total spending per customer.</li>
+    <li>Filter the CTE to display customers spending over $500.</li>
+    <li>Use ROW_NUMBER() to number orders by amount.</li>
+    <li>Use RANK() to rank orders from highest to lowest.</li>
+    <li>Write a query using SUM() OVER() to calculate a running total.</li>
+    <li>Compare a CTE with an equivalent subquery.</li>
+  </ol>
+
+  <h3 style="color: #27609a;">Lab Deliverables</h3>
+  <ul>
+    <li>One SQL file containing all completed queries.</li>
+    <li>Screenshots of successful execution in pgAdmin.</li>
+    <li>A short explanation comparing CTEs and subqueries.</li>
+  </ul>
+
+  <p><strong>Lab Value: 50 Points</strong></p>
+
+  <hr>
+
+  <h2 style="color: #17365d;">3. Discussion: Simplifying Complex SQL Queries</h2>
+
+  <p>
+    Database developers frequently work with SQL queries that
+    become increasingly complicated as applications grow.
+    Views, CTEs, and Window Functions provide different ways
+    to improve query organization, readability, and analytical
+    capabilities.
+  </p>
+
+  <h3 style="color: #27609a;">Discussion Questions</h3>
+  <ol>
+    <li>
+      What advantages do SQL Views provide compared with
+      repeatedly writing the same query?
+    </li>
+    <li>
+      How does a Common Table Expression differ from a subquery?
+    </li>
+    <li>
+      Describe a business situation where RANK() or
+      ROW_NUMBER() would be useful.
+    </li>
+    <li>
+      Which of these advanced SQL techniques would be most
+      beneficial in a real-world database application, and why?
+    </li>
+  </ol>
+
+  <h3 style="color: #27609a;">Discussion Requirements</h3>
+  <ul>
+    <li>Submit an initial response of at least 200 words.</li>
+    <li>Respond to at least two classmates.</li>
+    <li>Provide meaningful examples and explanations.</li>
+    <li>Use professional and respectful communication.</li>
+  </ul>
+
+  <p><strong>Discussion Value: 25 Points</strong></p>
+
+  <hr>
+
+  <h2 style="color: #17365d;">4. Assignment: Advanced SQL Reporting and Analysis</h2>
+
+  <p>
+    <strong>Objective:</strong> Demonstrate your understanding
+    of Views, CTEs, and Window Functions by developing advanced
+    PostgreSQL queries for business reporting and analysis.
+  </p>
+
+  <p>
+    You may use the database provided for this module or your
+    existing course database, provided it contains appropriate
+    related tables and sufficient data for the analysis.
+  </p>
+
+  <h3 style="color: #27609a;">Part 1: SQL Views – 25 Points</h3>
+  <ol>
+    <li>Create a View combining data from at least two tables.</li>
+    <li>Create a second View using an aggregate function.</li>
+    <li>Execute SELECT statements against both Views.</li>
+    <li>Explain the purpose of each View.</li>
+  </ol>
+
+  <h3 style="color: #27609a;">Part 2: Common Table Expressions – 25 Points</h3>
+  <ol>
+    <li>Create a CTE that calculates a summary statistic.</li>
+    <li>Create a CTE that filters aggregated results.</li>
+    <li>Rewrite a previously developed subquery using a CTE.</li>
+    <li>Explain the differences between the two approaches.</li>
+  </ol>
+
+  <h3 style="color: #27609a;">Part 3: Window Functions – 30 Points</h3>
+  <ol>
+    <li>Use ROW_NUMBER() to assign sequential row numbers.</li>
+    <li>Use RANK() or DENSE_RANK() to rank records.</li>
+    <li>Use SUM() OVER() to calculate a running or partitioned total.</li>
+    <li>Explain what each window function accomplishes.</li>
+  </ol>
+
+  <h3 style="color: #27609a;">Part 4: Analysis and Documentation – 20 Points</h3>
+  <p>Prepare a brief report addressing:</p>
+  <ul>
+    <li>The purpose and results of your SQL queries.</li>
+    <li>How Views and CTEs improve database development.</li>
+    <li>How Window Functions differ from GROUP BY.</li>
+    <li>A real-world business application for these techniques.</li>
+  </ul>
+
+  <h3 style="color: #27609a;">Submission Requirements</h3>
+  <ul>
+    <li>A single .sql file containing all SQL statements.</li>
+    <li>Screenshots showing successful query execution.</li>
+    <li>A PDF or Word document containing your explanations.</li>
+    <li>Clearly labeled sections corresponding to each part.</li>
+  </ul>
+
+  <p><strong>Assignment Value: 100 Points</strong></p>
+
+  <hr>
+
+  <h2 style="color: #17365d;">Module 8 Grading Summary</h2>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr style="background: #17365d; color: white;">
+        <th style="padding: 12px; border: 1px solid #ccc; text-align: left;">Activity</th>
+        <th style="padding: 12px; border: 1px solid #ccc; text-align: left;">Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding: 10px; border: 1px solid #ccc;">Lab</td>
+        <td style="padding: 10px; border: 1px solid #ccc;">50</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px; border: 1px solid #ccc;">Discussion</td>
+        <td style="padding: 10px; border: 1px solid #ccc;">25</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px; border: 1px solid #ccc;">Assignment</td>
+        <td style="padding: 10px; border: 1px solid #ccc;">100</td>
+      </tr>
+      <tr style="background: #e9eef5; font-weight: bold;">
+        <td style="padding: 10px; border: 1px solid #ccc;">Total</td>
+        <td style="padding: 10px; border: 1px solid #ccc;">175</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 style="color: #17365d;">Looking Ahead: Module 9</h2>
+  <p>
+    Next week, we will explore Stored Procedures, Functions,
+    and Triggers in PostgreSQL. These features allow developers
+    to implement business logic and automate database operations.
+  </p>
+
+</div>
