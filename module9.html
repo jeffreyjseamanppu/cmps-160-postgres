@@ -1,0 +1,142 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Module 9 | PostgreSQL Stored Procedures and Functions</title><style>body{font:16px/1.65 system-ui,Arial,sans-serif;color:#243247;background:#f5f7fb;margin:0}main{max-width:980px;margin:auto;background:white;padding:36px 48px}h1,h2,h3{color:#163c64;line-height:1.3}h1{font-size:2.1rem}h2{border-bottom:2px solid #dce7f2;padding-bottom:8px;margin-top:36px}a{color:#075e9e}pre{background:#15263b;color:#f0f5fa;overflow:auto;padding:18px;border-radius:9px;line-height:1.5}code{font-family:ui-monospace,Menlo,monospace}table{border-collapse:collapse;width:100%}td,th{border:1px solid #d3dce7;padding:10px;text-align:left;vertical-align:top}th{background:#eaf1f8}.note{background:#eef5fc;border-left:4px solid #3278ae;padding:12px 16px}.task{border:1px solid #d6e0ea;border-radius:10px;padding:16px 20px;margin:16px 0}.small{color:#5d6878;font-size:.92rem}@media(max-width:650px){main{padding:20px}pre{font-size:12px}}@media print{body{background:white}main{padding:0}pre{white-space:pre-wrap}}</style></head><body><main><p class="small">Database Management • PostgreSQL • Module 9 • One week</p><h1>Stored Procedures and Functions with PL/pgSQL</h1><p><strong>Focus:</strong> reusable database logic, parameters, validation, calculations, and testing. <strong>Tools:</strong> PostgreSQL and pgAdmin 4. <strong>Scenario:</strong> Wine Store.</p><div class="note"><strong>Scope:</strong> This module covers stored procedures and functions only. Triggers are intentionally excluded. The standalone practice schema below prevents accidental changes to your existing course project.</div>
+<h2>1. Learning outcomes</h2><ol><li>Describe how procedures and functions differ and select an appropriate routine for a business problem.</li><li>Use <code>CREATE OR REPLACE PROCEDURE</code>, <code>CALL</code>, <code>CREATE OR REPLACE FUNCTION</code>, <code>RETURNS</code>, and <code>SELECT</code>.</li><li>Write PL/pgSQL blocks with parameters, local variables, <code>IF</code>, <code>RAISE EXCEPTION</code>, and <code>RETURN</code>.</li><li>Build routines that update inventory and return calculated or tabular results.</li><li>Test normal cases, invalid inputs, and boundary conditions; document expected and actual results.</li></ol>
+<h2>2. Weekly learning path</h2><table><tr><th>Stage</th><th>Activity</th><th>Estimated time</th></tr><tr><td>Prepare</td><td>Watch both videos and read official documentation</td><td>50–70 min</td></tr><tr><td>Explore</td><td>Run setup SQL and inspect the starter data</td><td>20 min</td></tr><tr><td>Guided practice</td><td>Build a restocking procedure and discount function</td><td>45–60 min</td></tr><tr><td>Extend</td><td>Build a price-change procedure and a table-returning function</td><td>50–70 min</td></tr><tr><td>Apply</td><td>Complete challenge labs, discussion, and homework</td><td>2–4 hours</td></tr></table>
+<h2>3. Required videos and viewing guide</h2><div class="task"><h3>Video 1: Stored Procedures Part 1</h3><p><a href="https://vimeo.com/1028613573" target="_blank" rel="noopener">Watch Video 1 on Vimeo</a></p><p>While watching, identify how a stored procedure is defined, how parameters are passed, and how the routine is executed. Write down one example where a stored procedure could replace repeated application SQL.</p></div><div class="task"><h3>Video 2: Stored Procedures — second course video</h3><p><a href="https://vimeo.com/reviews/9b505c5d-2d64-4aba-ba84-f6b10748e1a0/videos/1028619822" target="_blank" rel="noopener">Watch Video 2 on Vimeo (provided review link)</a></p><p>As you watch, note one new technique, one question you still have, and one way to test the routine shown. The review link may require appropriate Vimeo access.</p></div><p><strong>Video reflection (ungraded preparation):</strong> In 100–150 words, compare a procedure and a function, and identify a use case for each in a wine store.</p>
+<h2>4. Reading and conceptual foundation</h2><ul><li><a href="https://www.postgresql.org/docs/current/sql-createprocedure.html">PostgreSQL: CREATE PROCEDURE</a></li><li><a href="https://www.postgresql.org/docs/current/sql-call.html">PostgreSQL: CALL</a></li><li><a href="https://www.postgresql.org/docs/current/sql-createfunction.html">PostgreSQL: CREATE FUNCTION</a></li><li><a href="https://www.postgresql.org/docs/current/plpgsql.html">PostgreSQL: PL/pgSQL language</a></li></ul><table><tr><th>Feature</th><th>Procedure</th><th>Function</th></tr><tr><td>Define</td><td><code>CREATE PROCEDURE</code></td><td><code>CREATE FUNCTION</code></td></tr><tr><td>Invoke</td><td><code>CALL name(...)</code></td><td><code>SELECT name(...)</code> or in a query</td></tr><tr><td>Results</td><td>No <code>RETURNS</code> clause; output parameters are possible</td><td>Declares a return type, including scalar or table results</td></tr><tr><td>Typical lesson use</td><td>Controlled inventory and price updates</td><td>Discounts, totals, and reusable reporting queries</td></tr></table><p><strong>Important nuance:</strong> PostgreSQL functions can also modify data; the distinction is not simply “procedures write, functions read.” Procedures have transaction-control capabilities under specific calling conditions, which are outside this week's exercises.</p>
+<h2>5. Setup: independent practice database objects</h2><p>Open pgAdmin 4, connect to a practice database, open Query Tool, and execute the script below. Use the <code>module9</code> schema so your prior Wine Store tables are untouched. Run the setup once; rerunning the <code>TRUNCATE</code> resets this module's sample data.</p><pre><code>CREATE SCHEMA IF NOT EXISTS module9;
+CREATE TABLE IF NOT EXISTS module9.products (
+  product_id INTEGER PRIMARY KEY,
+  product_name TEXT NOT NULL,
+  price NUMERIC(10,2) NOT NULL CHECK (price &gt;= 0),
+  stock_quantity INTEGER NOT NULL CHECK (stock_quantity &gt;= 0)
+);
+CREATE TABLE IF NOT EXISTS module9.orders (
+  order_id INTEGER PRIMARY KEY,
+  customer_id INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS module9.order_items (
+  order_id INTEGER REFERENCES module9.orders(order_id),
+  product_id INTEGER REFERENCES module9.products(product_id),
+  quantity INTEGER NOT NULL CHECK (quantity &gt; 0),
+  unit_price NUMERIC(10,2) NOT NULL,
+  PRIMARY KEY (order_id, product_id)
+);
+TRUNCATE module9.order_items, module9.orders, module9.products;
+INSERT INTO module9.products VALUES
+ (1,'Cabernet Sauvignon',22.00,40),
+ (2,'Merlot',20.00,25),
+ (3,'Riesling',18.00,12),
+ (4,'Malbec',25.00,8);
+INSERT INTO module9.orders VALUES (101,1),(102,2),(103,1);
+INSERT INTO module9.order_items VALUES
+ (101,1,2,22.00),(101,3,1,18.00),
+ (102,2,3,20.00),(103,4,2,25.00);
+SELECT * FROM module9.products ORDER BY product_id;</code></pre>
+<h2>6. Guided lab A: your first stored procedure</h2><p><strong>Business problem:</strong> A delivery arrives. Rather than allowing staff to write ad hoc <code>UPDATE</code> statements, define one reusable restocking operation. The procedure checks inputs and confirms the product exists.</p><pre><code>CREATE OR REPLACE PROCEDURE module9.restock_wine(
+    p_product_id INTEGER,
+    p_quantity INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF p_quantity &lt;= 0 OR p_quantity IS NULL THEN
+        RAISE EXCEPTION 'Restock quantity must be positive';
+    END IF;
+
+    UPDATE module9.products
+    SET stock_quantity = stock_quantity + p_quantity
+    WHERE product_id = p_product_id;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Product % not found', p_product_id;
+    END IF;
+END;
+$$;
+
+CALL module9.restock_wine(3, 15);
+SELECT product_id, product_name, stock_quantity
+FROM module9.products WHERE product_id = 3;</code></pre><p><strong>Expected result:</strong> Riesling stock changes from 12 to 27. Run <code>CALL module9.restock_wine(3, -2);</code> and <code>CALL module9.restock_wine(999, 2);</code> separately. Both should produce intentional errors. Discuss why rejecting invalid input is useful.</p>
+<h2>7. Guided lab B: a scalar-returning function</h2><p><strong>Business problem:</strong> The store needs a consistent discount calculation that can be used in reports.</p><pre><code>CREATE OR REPLACE FUNCTION module9.discounted_price(
+    p_price NUMERIC,
+    p_percent NUMERIC
+)
+RETURNS NUMERIC
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF p_price IS NULL OR p_percent IS NULL
+       OR p_price &lt; 0 OR p_percent &lt; 0 OR p_percent &gt; 100 THEN
+        RAISE EXCEPTION 'Invalid price or discount';
+    END IF;
+    RETURN ROUND(p_price * (1 - p_percent / 100), 2);
+END;
+$$;
+
+SELECT module9.discounted_price(25.00, 10) AS sale_price;
+SELECT product_name, price,
+       module9.discounted_price(price, 15) AS sale_price
+FROM module9.products ORDER BY product_id;</code></pre><p><strong>Expected first result:</strong> 22.50. Compare calling a function once with using it across every row of a query. Test discounts of 0%, 100%, and 101%.</p>
+<h2>8. Guided lab C: a price-update procedure</h2><p><strong>Business problem:</strong> Managers need to change a price without accidentally entering a negative amount or updating an unknown product.</p><pre><code>CREATE OR REPLACE PROCEDURE module9.change_wine_price(
+    p_product_id INTEGER,
+    p_new_price NUMERIC
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF p_new_price IS NULL OR p_new_price &lt;= 0 THEN
+        RAISE EXCEPTION 'New price must be greater than zero';
+    END IF;
+    UPDATE module9.products
+    SET price = ROUND(p_new_price, 2)
+    WHERE product_id = p_product_id;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Product % not found', p_product_id;
+    END IF;
+END;
+$$;
+
+CALL module9.change_wine_price(4, 27.50);
+SELECT product_name, price FROM module9.products
+WHERE product_id = 4;</code></pre><p><strong>Think:</strong> What is the difference between rejecting a negative price in the procedure and using a <code>CHECK</code> constraint on the table? Why might an application need both?</p>
+<h2>9. Guided lab D: a function that returns rows</h2><p><strong>Business problem:</strong> The store wants to retrieve all wines at or below a given inventory threshold.</p><pre><code>CREATE OR REPLACE FUNCTION module9.low_stock_wines(
+    p_threshold INTEGER
+)
+RETURNS TABLE (
+    wine_id INTEGER,
+    wine_name TEXT,
+    quantity_on_hand INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF p_threshold IS NULL OR p_threshold &lt; 0 THEN
+        RAISE EXCEPTION 'Threshold must be zero or greater';
+    END IF;
+    RETURN QUERY
+    SELECT p.product_id, p.product_name, p.stock_quantity
+    FROM module9.products AS p
+    WHERE p.stock_quantity &lt;= p_threshold
+    ORDER BY p.stock_quantity, p.product_id;
+END;
+$$;
+
+SELECT * FROM module9.low_stock_wines(10);</code></pre><p>With the earlier labs completed, Malbec (8 bottles) should be returned. Explain how <code>RETURNS TABLE</code> and <code>RETURN QUERY</code> differ from returning a single number.</p>
+<h2>10. Additional learning experiences</h2><div class="task"><h3>Experience 1 — Predict, run, explain</h3><p>Before executing each statement, write the predicted result. Run it and explain any difference:</p><pre><code>SELECT module9.discounted_price(18, 0);
+SELECT module9.discounted_price(18, 100);
+SELECT * FROM module9.low_stock_wines(30);
+CALL module9.restock_wine(2, 5);</code></pre></div><div class="task"><h3>Experience 2 — Debugging clinic</h3><p>Correct this intentionally broken routine. Identify at least four problems, including syntax and logic errors.</p><pre><code>CREATE FUNCTION module9.bad_discount(p_price NUMERIC,
+                                     p_percent NUMERIC)
+RETURNS NUMERIC
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF p_percent &gt; 100 THEN
+    RAISE NOTICE 'Discount too high';
+  END IF;
+  RETURN p_price - p_percent;
+END;
+$$;
+SELECT module9.bad_discount(20, 10);</code></pre><p>Consider whether a warning is sufficient, whether the formula represents a percentage, and how negative or null values should be handled.</p></div><div class="task"><h3>Experience 3 — Pair programming / peer review</h3><p>Partner A writes a procedure to reduce inventory by a sale quantity without allowing stock to go negative. Partner B writes a function that returns <code>TRUE</code> when a requested quantity is available. Exchange SQL and test each other's code with a valid product, an unknown product, zero quantity, and insufficient stock. Discuss which operation belongs in a procedure and which belongs in a function.</p></div><div class="task"><h3>Experience 4 — Mini case study</h3><p>A wine store has 500 products and wants to apply a 10% promotional discount in reports without changing stored prices. Separately, it receives deliveries that must increase inventory. Write a short design recommendation identifying the best routine for each task and explaining why.</p></div><div class="task"><h3>Experience 5 — Knowledge check</h3><ol><li>Which SQL statement invokes a stored procedure?</li><li>Which clause declares a function's result type?</li><li>What does <code>NOT FOUND</code> detect after an <code>UPDATE</code> in PL/pgSQL?</li><li>Why use parameters instead of hard-coded product IDs?</li><li>What is the difference between <code>RETURN</code> and <code>RETURN QUERY</code>?</li><li>Why should you test a routine with invalid input?</li></ol></div>
+<h2>11. Discussion board — 30 points</h2><p><strong>Prompt: Where should business logic live?</strong> A Wine Store application needs to restock products, calculate customer discounts, and retrieve low-stock products. Discuss which tasks are better represented as stored procedures or functions, and whether you would implement any of the logic in application code instead.</p><p><strong>Initial post:</strong> 250–350 words. Include at least two specific examples from the guided labs, one benefit and one drawback of putting logic in PostgreSQL, and one reference to a required video or official reading. <strong>Peer replies:</strong> Respond to two classmates (75–100 words each), raising a thoughtful question or offering a concrete alternative design. Avoid replies that only say “I agree.”</p><table><tr><th>Criterion</th><th>Points</th></tr><tr><td>Accurate procedure/function comparison</td><td>10</td></tr><tr><td>Real-world examples and tradeoffs</td><td>10</td></tr><tr><td>Two substantive peer replies</td><td>6</td></tr><tr><td>Clarity and resource reference</td><td>4</td></tr><tr><th>Total</th><th>30</th></tr></table>
+<h2>12. Homework — Wine Store Routine Library (100 points)</h2><p><strong>Scenario:</strong> You are a database developer hired to create reusable SQL routines for a wine retailer. Work in the <code>module9</code> practice schema or adapt the logic to your own Wine Store database. Write your own routines; the guided lab examples are models, not completed homework submissions.</p><ol><li><strong>Procedure A — Sell wine (20 points).</strong> Create <code>sell_wine(p_product_id INTEGER, p_quantity INTEGER)</code>. Decrease inventory only when the product exists, quantity is positive, and enough stock is available. Raise a meaningful exception otherwise. Prevent stock from going negative even if two sessions attempt sales at the same time (hint: use one conditional <code>UPDATE</code> and check its result).</li><li><strong>Procedure B — Percentage price increase (20 points).</strong> Create <code>increase_wine_price(p_product_id INTEGER, p_percent NUMERIC)</code>. Validate the product and accept percentages from 0 to 100 inclusive. Increase and round the price to two decimal places. Raise an exception for invalid values.</li><li><strong>Function A — Sales tax calculator (15 points).</strong> Create <code>calculate_total_with_tax(p_subtotal NUMERIC, p_tax_percent NUMERIC)</code>, returning a rounded total. Reject negative subtotals and percentages outside 0–100.</li><li><strong>Function B — Customer spending (20 points).</strong> Create <code>customer_total_spent(p_customer_id INTEGER)</code>. Calculate the total historical spend using <code>orders</code> and <code>order_items</code>, including quantity times the order item's recorded unit price. Return zero when the customer has no orders. Do not calculate historical spend using today's product price.</li><li><strong>Test plan and evidence (15 points).</strong> For each routine, run at least three tests: normal input, a boundary case, and an invalid or missing-data case. Show the SQL call, expected result, actual result or expected exception, and a screenshot from pgAdmin.</li><li><strong>Documentation and reflection (10 points).</strong> Include a 200–300 word explanation of your design, the difference between procedures and functions, and one debugging challenge you encountered.</li></ol><p><strong>Required submission:</strong> One <code>module9_routines.sql</code> file containing the four routine definitions and test calls; one PDF or document containing screenshots, a test-results table, and the reflection. Add comments identifying each routine and its parameters. Make your script executable in order after the starter setup.</p><p><strong>Bonus (up to 5 points):</strong> Create a function that returns the top three wines by historical revenue using <code>RETURNS TABLE</code> and <code>RETURN QUERY</code>. Explain why historical <code>unit_price</code> is used.</p><table><tr><th>Rubric</th><th>Points</th></tr><tr><td>Sell wine procedure</td><td>20</td></tr><tr><td>Price increase procedure</td><td>20</td></tr><tr><td>Sales tax function</td><td>15</td></tr><tr><td>Customer spending function</td><td>20</td></tr><tr><td>Testing and screenshots</td><td>15</td></tr><tr><td>Documentation and reflection</td><td>10</td></tr><tr><th>Total</th><th>100</th></tr></table>
+<h2>13. Self-check before submission</h2><ul><li>Can I explain why <code>CALL</code> is used for procedures and <code>SELECT</code> for functions?</li><li>Do all four homework routines have meaningful names and parameters?</li><li>Have I tested invalid product IDs, zero or negative quantities, and boundary percentages?</li><li>Does my customer spending function use historical order-item prices?</li><li>Did I include my SQL script, test evidence, and reflection?</li></ul><p class="small">Instructor note: The homework intentionally extends the guided examples rather than asking students to resubmit them. Video 2 uses the supplied Vimeo review URL, which may not be publicly viewable.</p></main></body></html>
