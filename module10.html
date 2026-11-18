@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Intermediate Stored Procedures | PostgreSQL</title><style>
+:root{--navy:#17324d;--blue:#2563a6;--pale:#eef5fb;--ink:#243447;--border:#d7e2ed}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;line-height:1.65;color:var(--ink);margin:0;background:#f5f7fa}header{background:var(--navy);color:white;padding:38px max(24px,calc((100vw - 1040px)/2))}header h1{margin:0;font-size:2rem}header p{margin:8px 0 0}.wrap{max-width:1040px;margin:25px auto;padding:0 20px 45px}section{background:white;border:1px solid var(--border);border-radius:10px;margin:20px 0;padding:24px}h2{color:var(--navy);border-bottom:2px solid #dce8f4;padding-bottom:8px}h3{color:var(--blue)}code,pre{font-family:Consolas,Monaco,monospace}pre{background:#14283b;color:#e9f4ff;padding:17px;border-radius:7px;overflow-x:auto;font-size:.9rem;line-height:1.5}.note{background:var(--pale);border-left:5px solid var(--blue);padding:13px 17px;margin:15px 0}.warning{background:#fff7e8;border-left:5px solid #c47c12;padding:13px 17px}a{color:#135d9a}li{margin:6px 0}table{width:100%;border-collapse:collapse;margin:15px 0}th,td{padding:10px;border:1px solid var(--border);text-align:left;vertical-align:top}th{background:var(--pale)}.tag{display:inline-block;background:#dcecf9;border-radius:20px;padding:4px 12px;font-weight:bold;color:#17324d}footer{text-align:center;color:#526578;padding:12px}@media print{body{background:white}section{break-inside:avoid}pre{white-space:pre-wrap;word-break:break-word}header{padding:24px}}
+</style></head><body><header><h1>Intermediate Stored Procedures in PostgreSQL</h1><p>Database Course • pgAdmin 4 • PL/pgSQL • Practical Data Management</p><p>Module focus: reusable logic, validation, error handling, transactions, and project integration</p></header><main class="wrap">
+<section><h2>Module Overview &amp; Learning Outcomes</h2><p>Last week, we introduced PostgreSQL stored procedures. This week, you will move beyond a basic <code>CREATE PROCEDURE</code> and <code>CALL</code> by writing procedures that accept parameters, validate data, make decisions, report errors, and manage changes to multiple tables.</p><p>By the end of this module, you should be able to:</p><ol><li>Use <code>IN</code> and <code>INOUT</code> parameters to pass data into and out of procedures.</li><li>Apply <code>IF</code>, <code>EXISTS</code>, and <code>RAISE EXCEPTION</code> to enforce business rules.</li><li>Perform safe INSERT, UPDATE, and DELETE operations through procedures.</li><li>Explain atomic operations, transaction behavior, and when to use procedures versus functions.</li><li>Execute and test procedures in the pgAdmin 4 Query Tool.</li><li>Integrate procedures into an existing final database project.</li></ol><div class="note"><strong>Required tools:</strong> PostgreSQL, pgAdmin 4, your course database, and a SQL editor. Run the demonstration SQL in a separate practice database or schema, not on important existing data.</div></section>
+<section><h2>Lecture: Intermediate Stored Procedures</h2><h3>1. Review: Procedures vs. Functions</h3><p>A PostgreSQL procedure is created with <code>CREATE PROCEDURE</code> and invoked with <code>CALL</code>. A function is created with <code>CREATE FUNCTION</code> and can return a value or a result set through a SQL expression such as <code>SELECT</code>. Procedures are especially useful for coordinated data changes and, in eligible calling contexts, transaction control. Functions are often preferred for calculations and query-oriented results.</p><h3>2. Build a Small Wine Store Database</h3><p>We will use a wine-store example. The same concepts apply to a bookstore, inventory system, appointment system, or any approved final-project topic.</p><pre><code>CREATE SCHEMA IF NOT EXISTS procedure_lab;
+SET search_path TO procedure_lab, public;
+
+CREATE TABLE IF NOT EXISTS products (
+    product_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    product_name VARCHAR(100) NOT NULL,
+    price NUMERIC(10,2) NOT NULL CHECK (price &gt;= 0),
+    stock_quantity INTEGER NOT NULL DEFAULT 0
+        CHECK (stock_quantity &gt;= 0)
+);
+
+CREATE TABLE IF NOT EXISTS inventory_log (
+    log_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    product_id INTEGER NOT NULL REFERENCES products(product_id),
+    quantity_change INTEGER NOT NULL,
+    reason VARCHAR(100) NOT NULL,
+    changed_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO products (product_name, price, stock_quantity)
+VALUES ('Merlot', 25.00, 20), ('Chardonnay', 22.00, 15);
+
+SELECT * FROM products ORDER BY product_id;</code></pre><h3>3. Parameters and Validation: Add a Product</h3><p>The procedure below uses input parameters and guards against missing names, negative prices, and negative inventory. Database constraints provide an additional layer of protection.</p><pre><code>CREATE OR REPLACE PROCEDURE procedure_lab.add_product(
+    IN p_name VARCHAR,
+    IN p_price NUMERIC,
+    IN p_quantity INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF p_name IS NULL OR BTRIM(p_name) = '' THEN
+        RAISE EXCEPTION 'Product name is required';
+    END IF;
+    IF p_price IS NULL OR p_price &lt; 0 THEN
+        RAISE EXCEPTION 'Price must be zero or greater';
+    END IF;
+    IF p_quantity IS NULL OR p_quantity &lt; 0 THEN
+        RAISE EXCEPTION 'Quantity must be zero or greater';
+    END IF;
+
+    INSERT INTO procedure_lab.products
+        (product_name, price, stock_quantity)
+    VALUES (BTRIM(p_name), p_price, p_quantity);
+END;
+$$;
+
+CALL procedure_lab.add_product('Pinot Noir', 28.00, 12);
+SELECT * FROM procedure_lab.products ORDER BY product_id;</code></pre><h3>4. Conditional Logic and Safe Updates</h3><p>Use <code>IF NOT FOUND</code> after an UPDATE to detect an ID that does not exist. Notice that <code>FOUND</code> describes whether the preceding SQL statement affected a row.</p><pre><code>CREATE OR REPLACE PROCEDURE procedure_lab.update_product_price(
+    IN p_product_id INTEGER,
+    IN p_new_price NUMERIC
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF p_new_price IS NULL OR p_new_price &lt; 0 THEN
+        RAISE EXCEPTION 'New price must be zero or greater';
+    END IF;
+
+    UPDATE procedure_lab.products
+       SET price = p_new_price
+     WHERE product_id = p_product_id;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Product ID % was not found', p_product_id;
+    END IF;
+END;
+$$;
+
+-- Substitute an ID from your SELECT results:
+-- CALL procedure_lab.update_product_price(1, 27.00);</code></pre><h3>5. Coordinated Changes: Inventory and Audit Logging</h3><p>This procedure modifies inventory and inserts an audit record in the same transaction. If an exception occurs, both changes roll back together (assuming the exception is not caught and suppressed).</p><pre><code>CREATE OR REPLACE PROCEDURE procedure_lab.adjust_inventory(
+    IN p_product_id INTEGER,
+    IN p_change INTEGER,
+    IN p_reason VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_current_stock INTEGER;
+BEGIN
+    IF p_change IS NULL OR p_change = 0 THEN
+        RAISE EXCEPTION 'Change must be nonzero';
+    END IF;
+    IF p_reason IS NULL OR BTRIM(p_reason) = '' THEN
+        RAISE EXCEPTION 'Reason is required';
+    END IF;
+
+    SELECT stock_quantity INTO v_current_stock
+      FROM procedure_lab.products
+     WHERE product_id = p_product_id
+     FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Product ID % does not exist', p_product_id;
+    END IF;
+    IF v_current_stock + p_change &lt; 0 THEN
+        RAISE EXCEPTION 'Insufficient stock: available %, change %',
+            v_current_stock, p_change;
+    END IF;
+
+    UPDATE procedure_lab.products
+       SET stock_quantity = stock_quantity + p_change
+     WHERE product_id = p_product_id;
+
+    INSERT INTO procedure_lab.inventory_log
+        (product_id, quantity_change, reason)
+    VALUES (p_product_id, p_change, BTRIM(p_reason));
+END;
+$$;
+
+-- Substitute an existing product ID:
+-- CALL procedure_lab.adjust_inventory(1, -2, 'Customer purchase');
+-- SELECT * FROM procedure_lab.inventory_log ORDER BY log_id;</code></pre><h3>6. Safe Deletes and Foreign Keys</h3><p>Deleting a product that has inventory-log references would violate the foreign key. This example deliberately refuses deletion of referenced products rather than erasing historical records.</p><pre><code>CREATE OR REPLACE PROCEDURE procedure_lab.delete_product(
+    IN p_product_id INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM procedure_lab.inventory_log
+         WHERE product_id = p_product_id
+    ) THEN
+        RAISE EXCEPTION 'Cannot delete product %: inventory history exists',
+            p_product_id;
+    END IF;
+
+    DELETE FROM procedure_lab.products
+     WHERE product_id = p_product_id;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Product ID % was not found', p_product_id;
+    END IF;
+END;
+$$;
+
+-- Test on a product with no log entries, using its actual ID:
+-- CALL procedure_lab.delete_product(3);</code></pre><h3>7. Intermediate Concepts: INOUT, Exceptions, and Transactions</h3><p><code>INOUT</code> parameters can provide values back to the caller. <code>RAISE NOTICE</code> produces informational messages, while <code>RAISE EXCEPTION</code> aborts the current operation unless handled. PostgreSQL procedures may issue <code>COMMIT</code> or <code>ROLLBACK</code> only in supported top-level CALL contexts; they cannot do so inside a CALL executed within an explicit transaction block. For this module, let PostgreSQL manage each successful CALL as a transaction, and use an explicit transaction for safe experiments.</p><pre><code>BEGIN;
+-- Use an existing product ID and valid values:
+-- CALL procedure_lab.update_product_price(1, 99.00);
+SELECT * FROM procedure_lab.products ORDER BY product_id;
+ROLLBACK;  -- Undo changes made in this demonstration transaction.</code></pre><div class="warning"><strong>Important:</strong> Run each practice statement separately when directed. If a statement raises an exception inside an explicit transaction, issue <code>ROLLBACK</code> before continuing. Never use an unqualified DELETE or UPDATE on your final-project database.</div></section>
+<section><h2>Hands-On Lab: pgAdmin 4</h2><p><span class="tag">Estimated time: 60–90 minutes</span></p><ol><li>Open <strong>pgAdmin 4</strong>, connect to your PostgreSQL server, select your practice database, and open <strong>Tools → Query Tool</strong>.</li><li>Run the schema and table setup script above. Expand <strong>Schemas → procedure_lab → Tables</strong> and verify that the tables exist.</li><li>Create the four procedures. In pgAdmin, refresh <strong>Schemas → procedure_lab → Procedures</strong> to see them.</li><li>Run <code>SELECT * FROM procedure_lab.products ORDER BY product_id;</code> and record actual IDs.</li><li>Use <code>CALL procedure_lab.add_product('Riesling', 21.00, 8);</code> and verify the inserted row.</li><li>Update that new product’s price using <code>update_product_price</code>, then SELECT to confirm the result.</li><li>Adjust its inventory by -3 using <code>adjust_inventory</code>, then query both <code>products</code> and <code>inventory_log</code>.</li><li>Try an invalid stock adjustment, such as -999. Capture the error and confirm inventory was not changed.</li><li>Add a separate disposable product and delete it using <code>delete_product</code>. Confirm that it is gone. Attempt to delete a product with an inventory-log entry and explain the foreign-key safeguard.</li><li>Demonstrate a reversible change using <code>BEGIN</code>, a valid CALL, <code>SELECT</code>, and <code>ROLLBACK</code>.</li></ol><h3>Lab Reflection</h3><p>Write 150–200 words explaining how parameter validation, transaction behavior, and audit logging make stored procedures more reliable. Include screenshots of at least one successful CALL, one failed validation, and one SELECT confirming the data.</p></section>
+<section><h2>Online Video Learning</h2><p>Use these official resources and video-search links to supplement the lecture. Video titles and availability can change; choose a relevant demonstration covering the named concept.</p><ul><li><a href="https://www.youtube.com/results?search_query=PostgreSQL+PLpgSQL+stored+procedures+parameters+pgAdmin+4" target="_blank" rel="noopener">YouTube: PostgreSQL PL/pgSQL procedures, parameters, and pgAdmin 4</a> — watch a walkthrough of CREATE PROCEDURE and CALL.</li><li><a href="https://www.youtube.com/results?search_query=PostgreSQL+PLpgSQL+IF+ELSE+RAISE+EXCEPTION+tutorial" target="_blank" rel="noopener">YouTube: IF/ELSE and RAISE EXCEPTION in PL/pgSQL</a> — focus on validation and branching.</li><li><a href="https://www.youtube.com/results?search_query=PostgreSQL+stored+procedure+transactions+rollback+commit+tutorial" target="_blank" rel="noopener">YouTube: PostgreSQL procedures and transactions</a> — compare successful operations and rollbacks.</li><li><a href="https://www.postgresql.org/docs/current/plpgsql.html" target="_blank" rel="noopener">Official PostgreSQL PL/pgSQL documentation</a> — reference syntax and error handling.</li><li><a href="https://www.pgadmin.org/docs/pgadmin4/latest/query_tool.html" target="_blank" rel="noopener">Official pgAdmin 4 Query Tool guide</a> — review execution and results.</li></ul><p><strong>Viewing task:</strong> Watch at least two relevant videos (approximately 20–30 minutes total). In your lab reflection, identify one new technique from the videos and describe where you applied it.</p></section>
+<section><h2>Discussion Question (One)</h2><h3>Should Business Rules Live in Stored Procedures?</h3><p>Imagine a business system where multiple applications need to add products, update prices, and manage inventory. Should the rules for validating and changing data be written in PostgreSQL stored procedures, application code, or both? Explain your choice, discuss one benefit and one drawback of stored procedures, and give a concrete example from your own final-project database.</p><p><strong>Initial post:</strong> 200–300 words. <strong>Peer engagement:</strong> Respond meaningfully to at least one classmate (75–100 words), including a question or constructive suggestion.</p></section>
+<section><h2>Weekly Homework Assignment: Intermediate Procedure Toolkit</h2><p><strong>Goal:</strong> Demonstrate intermediate PL/pgSQL skills independently of the final-project integration requirement.</p><ol><li>Use the practice wine-store database or create an equivalent small schema with at least one parent table and a related activity/history table.</li><li>Create <strong>three original stored procedures</strong>: one INSERT, one UPDATE, and one DELETE. Each must use parameters and appropriate validation.</li><li>At least one procedure must use conditional logic (<code>IF</code> or <code>EXISTS</code>) and <code>RAISE EXCEPTION</code>.</li><li>At least one procedure must make coordinated changes to two related tables, such as adjusting inventory and recording an audit log.</li><li>Demonstrate successful calls, an invalid-input test, and a DELETE that safely handles related records.</li><li>Explain in 200–300 words how your procedures protect data integrity and how you tested them.</li></ol><h3>Submit</h3><ul><li>One <code>.sql</code> file containing schema setup, all procedures, and clearly labeled test CALL statements.</li><li>Screenshots showing three successful operations, one expected error, and SELECT results verifying changes.</li><li>A short PDF or document containing your explanation and test summary.</li></ul><h3>Homework Rubric — 100 Points</h3><table><tr><th>Criterion</th><th>Points</th></tr><tr><td>Three functional, parameterized procedures (INSERT/UPDATE/DELETE)</td><td>45</td></tr><tr><td>Validation, conditional logic, and error handling</td><td>20</td></tr><tr><td>Related-table operation and data integrity</td><td>15</td></tr><tr><td>Tests, evidence, and accurate results</td><td>10</td></tr><tr><td>Written explanation and SQL organization</td><td>10</td></tr><tr><th>Total</th><th>100</th></tr></table></section>
+<section><h2>Final Project Update: Stored Procedure Integration</h2><p><strong>This is a separate final-project requirement in addition to the weekly homework.</strong> Extend your existing final-project database. Do not replace your project with the practice database.</p><ol><li>Add at least <strong>three project-specific PostgreSQL stored procedures</strong>: one to <strong>add/insert</strong> a record, one to <strong>modify/update</strong> a record, and one to <strong>delete</strong> a record.</li><li>Use meaningful parameters rather than hard-coded values. Include safeguards for invalid data and missing records.</li><li>Ensure procedures respect primary keys, foreign keys, and business rules. For deletion, explain whether you restrict, archive, or cascade related data and why.</li><li>Include test CALL statements and SELECT queries showing before-and-after results.</li><li>Integrate the procedures into your project’s SQL code and repository or submitted project files. If you have an application interface, you may additionally call them from your application; a separate UI is not required.</li><li>Update your project documentation with the purpose, inputs, example CALL, and expected result of each procedure.</li></ol><div class="note"><strong>Example for a Wine Store project:</strong> <code>add_customer(...)</code>, <code>update_product_price(...)</code>, and <code>delete_customer(...)</code>. Other projects should use operations relevant to their own data model.</div><h3>Project Integration Checklist</h3><p>Before the in-person meeting, confirm that your schema loads, sample records exist, all three procedures compile, and your test calls work. Bring a working PostgreSQL connection and your latest project SQL files.</p></section>
+<section><h2>Live Interactive Final Project Demonstration</h2><div class="note"><strong>Monday, November 30, 2026 • 6:00 PM • In person</strong><p>This is a <strong>live screen-sharing walkthrough</strong> of your project progress—not a traditional PowerPoint presentation or a prerecorded video. You will control your computer and demonstrate each step while explaining what you are doing.</p></div><h3>What You Must Demonstrate on Screen</h3><ol><li><strong>Project introduction:</strong> Explain the problem your database solves and the main entities/tables.</li><li><strong>Database structure:</strong> Open pgAdmin 4 and show your tables, primary keys, and relationships.</li><li><strong>Query the data:</strong> Run working SELECT statements, including a filter and a JOIN where your schema supports one, and explain the results.</li><li><strong>Insert/add:</strong> Run your INSERT stored procedure with realistic test values, then SELECT the table to prove the row was added.</li><li><strong>Modify/update:</strong> Run your UPDATE stored procedure, then SELECT the changed record to prove the modification.</li><li><strong>Delete:</strong> Run your DELETE stored procedure on a safe test record and verify the outcome with SELECT. Do not remove important project data.</li><li><strong>Validation:</strong> Run one intentionally invalid procedure call, show the resulting error or safeguard, and explain why it matters.</li><li><strong>Code walkthrough:</strong> Open at least one procedure definition and explain the parameters, SQL statements, and logic.</li><li><strong>Progress and next steps:</strong> Identify what is complete, what remains, and one challenge or design decision.</li></ol><h3>Suggested Demonstration Sequence</h3><table><tr><th>Step</th><th>Action</th><th>Evidence</th></tr><tr><td>1</td><td>Show schema and existing records</td><td>Tables, relationships, SELECT</td></tr><tr><td>2</td><td>Execute INSERT procedure</td><td>New record appears</td></tr><tr><td>3</td><td>Execute UPDATE procedure</td><td>Record reflects changed value</td></tr><tr><td>4</td><td>Execute DELETE procedure</td><td>Test record removed or safely restricted</td></tr><tr><td>5</td><td>Demonstrate validation</td><td>Controlled error / rejected operation</td></tr><tr><td>6</td><td>Explain code and remaining work</td><td>Procedure definition and project status</td></tr></table><p><strong>Participation:</strong> Be ready to answer instructor and class questions while sharing your screen. Keep your SQL scripts open so you can execute statements live. Plan for approximately <strong>8–10 minutes per student</strong>, subject to class size and instructor direction.</p><h3>Live Demonstration Rubric — 100 Points</h3><table><tr><th>Criterion</th><th>Points</th></tr><tr><td>Clear project overview and schema walkthrough</td><td>15</td></tr><tr><td>Live SELECT queries and explanation of results</td><td>15</td></tr><tr><td>Live INSERT, UPDATE, and DELETE procedures</td><td>40</td></tr><tr><td>Validation / error handling demonstration</td><td>10</td></tr><tr><td>Explanation of procedure code and logic</td><td>10</td></tr><tr><td>Preparation, screen sharing, and responses to questions</td><td>10</td></tr><tr><th>Total</th><th>100</th></tr></table><div class="warning"><strong>Before class:</strong> Test your PostgreSQL connection, pgAdmin 4, screen-sharing capability, and all demo commands. Prepare disposable test records for INSERT/UPDATE/DELETE. Never share passwords or connection secrets on screen. If you cannot screen share from your device, contact the instructor before the meeting to arrange a workable live demonstration.</div></section>
+<section><h2>Module Completion Checklist</h2><ul><li>Read the lecture and execute the examples.</li><li>Complete the pgAdmin 4 hands-on lab and reflection.</li><li>Watch at least two related online videos.</li><li>Post one discussion response and reply to a classmate.</li><li>Submit the separate intermediate stored procedures homework.</li><li>Add INSERT, UPDATE, and DELETE procedures to your final project.</li><li>Prepare your live screen-sharing demonstration for Monday, November 30 at 6:00 PM.</li></ul><p><strong>Due dates:</strong> Follow the deadlines published in the course learning management system for the weekly work. The live progress demonstration takes place at the scheduled in-person meeting on November 30.</p></section></main><footer>PostgreSQL Intermediate Stored Procedures • Course Learning Module</footer></body></html>
